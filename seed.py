@@ -12,112 +12,152 @@ DB_PATH = "pact.db"
 # 7 clean agents: verified, trust_score 55-90, healthy transaction counts
 CLEAN_AGENTS = [
     {
-        "agent_id":          "agent_freightbot_01",
-        "org_name":          "FreightBot Logistics",
-        "org_domain":        "freightbot.io",
-        "contact_email":     "ops@freightbot.io",
-        "verified":          1,
-        "trust_score":       88,
-        "transaction_count": 183,
-        "flags":             [],
+        "agent_id":               "agent_freightbot_01",
+        "org_name":               "FreightBot Logistics",
+        "org_domain":             "freightbot.io",
+        "contact_email":          "ops@freightbot.io",
+        "verified":               1,
+        "trust_score":            88,
+        "transaction_count":      183,
+        "flags":                  [],
+        "endpoint_url":           "https://freightbot.io/api/agent",
+        "protocol":               "REST",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "x402",
     },
     {
-        "agent_id":          "agent_cargovfy_01",
-        "org_name":          "CargoVerify Inc.",
-        "org_domain":        "cargoverify.com",
-        "contact_email":     "registry@cargoverify.com",
-        "verified":          1,
-        "trust_score":       82,
-        "transaction_count": 140,
-        "flags":             [],
+        "agent_id":               "agent_cargovfy_01",
+        "org_name":               "CargoVerify Inc.",
+        "org_domain":             "cargoverify.com",
+        "contact_email":          "registry@cargoverify.com",
+        "verified":               1,
+        "trust_score":            82,
+        "transaction_count":      140,
+        "flags":                  [],
+        "endpoint_url":           "https://api.cargoverify.com/v2/agent",
+        "protocol":               "REST",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "stripe",
     },
     {
-        "agent_id":          "agent_shipchain_01",
-        "org_name":          "ShipChain Protocol",
-        "org_domain":        "shipchain.network",
-        "contact_email":     "agent@shipchain.network",
-        "verified":          1,
-        "trust_score":       76,
-        "transaction_count": 97,
-        "flags":             [],
+        "agent_id":               "agent_shipchain_01",
+        "org_name":               "ShipChain Protocol",
+        "org_domain":             "shipchain.network",
+        "contact_email":          "agent@shipchain.network",
+        "verified":               1,
+        "trust_score":            76,
+        "transaction_count":      97,
+        "flags":                  [],
+        "endpoint_url":           "https://node.shipchain.network/agent",
+        "protocol":               "gRPC",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "x402",
     },
     {
-        "agent_id":          "agent_tradelens_01",
-        "org_name":          "TradeLens AI",
-        "org_domain":        "tradelens.ai",
-        "contact_email":     "bot@tradelens.ai",
-        "verified":          1,
-        "trust_score":       71,
-        "transaction_count": 55,
-        "flags":             [],
+        "agent_id":               "agent_tradelens_01",
+        "org_name":               "TradeLens AI",
+        "org_domain":             "tradelens.ai",
+        "contact_email":          "bot@tradelens.ai",
+        "verified":               1,
+        "trust_score":            71,
+        "transaction_count":      55,
+        "flags":                  [],
+        "endpoint_url":           "https://tradelens.ai/graphql",
+        "protocol":               "GraphQL",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "stripe",
     },
     {
-        "agent_id":          "agent_portex_01",
-        "org_name":          "PortEx Automation",
-        "org_domain":        "portex.systems",
-        "contact_email":     "agent@portex.systems",
-        "verified":          1,
-        "trust_score":       65,
-        "transaction_count": 42,
-        "flags":             [],
+        "agent_id":               "agent_portex_01",
+        "org_name":               "PortEx Automation",
+        "org_domain":             "portex.systems",
+        "contact_email":          "agent@portex.systems",
+        "verified":               1,
+        "trust_score":            65,
+        "transaction_count":      42,
+        "flags":                  [],
+        "endpoint_url":           "https://portex.systems/api/v1/agent",
+        "protocol":               "REST",
+        "accepted_terms_format":  "XML",
+        "settlement_rail":        "manual",
     },
     {
-        "agent_id":          "agent_routeiq_01",
-        "org_name":          "RouteIQ Solutions",
-        "org_domain":        "routeiq.co",
-        "contact_email":     "routing@routeiq.co",
-        "verified":          1,
-        "trust_score":       59,
-        "transaction_count": 28,
-        "flags":             [],
+        "agent_id":               "agent_routeiq_01",
+        "org_name":               "RouteIQ Solutions",
+        "org_domain":             "routeiq.co",
+        "contact_email":          "routing@routeiq.co",
+        "verified":               1,
+        "trust_score":            59,
+        "transaction_count":      28,
+        "flags":                  [],
+        "endpoint_url":           "https://routeiq.co/agent/endpoint",
+        "protocol":               "REST",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "x402",
     },
     {
-        "agent_id":          "agent_supplylink_01",
-        "org_name":          "SupplyLink Dynamics",
-        "org_domain":        "supplylink.net",
-        "contact_email":     "api@supplylink.net",
-        "verified":          1,
-        "trust_score":       55,
-        "transaction_count": 14,
-        "flags":             [],
+        "agent_id":               "agent_supplylink_01",
+        "org_name":               "SupplyLink Dynamics",
+        "org_domain":             "supplylink.net",
+        "contact_email":          "api@supplylink.net",
+        "verified":               1,
+        "trust_score":            55,
+        "transaction_count":      14,
+        "flags":                  [],
+        "endpoint_url":           "https://supplylink.net/api/agent",
+        "protocol":               "gRPC",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "manual",
     },
 ]
 
 # 2 flagged agents: low trust, specific misconduct flags
 FLAGGED_AGENTS = [
     {
-        "agent_id":          "agent_spoofex_99",
-        "org_name":          "SpoofEx Logistics",
-        "org_domain":        "spoofex.biz",
-        "contact_email":     "noreply@spoofex.biz",
-        "verified":          1,
-        "trust_score":       22,
-        "transaction_count": 11,
-        "flags":             ["dispute_history"],
+        "agent_id":               "agent_spoofex_99",
+        "org_name":               "SpoofEx Logistics",
+        "org_domain":             "spoofex.biz",
+        "contact_email":          "noreply@spoofex.biz",
+        "verified":               1,
+        "trust_score":            22,
+        "transaction_count":      11,
+        "flags":                  ["dispute_history"],
+        "endpoint_url":           "https://spoofex.biz/agent",
+        "protocol":               "REST",
+        "accepted_terms_format":  "JSON",
+        "settlement_rail":        "manual",
     },
     {
-        "agent_id":          "agent_fakecargo_77",
-        "org_name":          "FakeCargo Systems",
-        "org_domain":        "fakecargo.org",
-        "contact_email":     "ghost@fakecargo.org",
-        "verified":          1,
-        "trust_score":       8,
-        "transaction_count": 3,
-        "flags":             ["fabricated_output"],
+        "agent_id":               "agent_fakecargo_77",
+        "org_name":               "FakeCargo Systems",
+        "org_domain":             "fakecargo.org",
+        "contact_email":          "ghost@fakecargo.org",
+        "verified":               1,
+        "trust_score":            8,
+        "transaction_count":      3,
+        "flags":                  ["fabricated_output"],
+        "endpoint_url":           "https://fakecargo.org/api",
+        "protocol":               "REST",
+        "accepted_terms_format":  "XML",
+        "settlement_rail":        "manual",
     },
 ]
 
-# 1 unregistered / shadow agent: not yet in the registry
+# 1 unregistered / shadow agent — no routing info because it was never properly onboarded
 UNREGISTERED_AGENT = [
     {
-        "agent_id":          "agent_ghost_00",
-        "org_name":          "GhostFreight Unknown",
-        "org_domain":        "ghostfreight.unknown",
-        "contact_email":     "void@ghostfreight.unknown",
-        "verified":          0,
-        "trust_score":       0,
-        "transaction_count": 0,
-        "flags":             [],
+        "agent_id":               "agent_ghost_00",
+        "org_name":               "GhostFreight Unknown",
+        "org_domain":             "ghostfreight.unknown",
+        "contact_email":          "void@ghostfreight.unknown",
+        "verified":               0,
+        "trust_score":            0,
+        "transaction_count":      0,
+        "flags":                  [],
+        "endpoint_url":           None,
+        "protocol":               None,
+        "accepted_terms_format":  None,
+        "settlement_rail":        None,
     },
 ]
 
@@ -137,18 +177,33 @@ def seed_database() -> None:
     # Ensure tables exist (safe if already created by the API)
     conn.execute("""
         CREATE TABLE IF NOT EXISTS agents (
-            agent_id          TEXT PRIMARY KEY,
-            org_name          TEXT NOT NULL,
-            org_domain        TEXT NOT NULL,
-            contact_email     TEXT NOT NULL,
-            verified          INTEGER NOT NULL DEFAULT 0,
-            trust_score       INTEGER NOT NULL DEFAULT 40,
-            transaction_count INTEGER NOT NULL DEFAULT 0,
-            flags             TEXT    NOT NULL DEFAULT '[]',
-            registered_at     TEXT    NOT NULL,
-            last_active       TEXT    NOT NULL
+            agent_id               TEXT PRIMARY KEY,
+            org_name               TEXT NOT NULL,
+            org_domain             TEXT NOT NULL,
+            contact_email          TEXT NOT NULL,
+            verified               INTEGER NOT NULL DEFAULT 0,
+            trust_score            INTEGER NOT NULL DEFAULT 40,
+            transaction_count      INTEGER NOT NULL DEFAULT 0,
+            flags                  TEXT    NOT NULL DEFAULT '[]',
+            registered_at          TEXT    NOT NULL,
+            last_active            TEXT    NOT NULL,
+            endpoint_url           TEXT,
+            protocol               TEXT,
+            accepted_terms_format  TEXT,
+            settlement_rail        TEXT
         )
     """)
+    # Migrate existing databases that predate the routing columns
+    for col, col_type in [
+        ("endpoint_url",          "TEXT"),
+        ("protocol",              "TEXT"),
+        ("accepted_terms_format", "TEXT"),
+        ("settlement_rail",       "TEXT"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE agents ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass  # column already present
     conn.execute("""
         CREATE TABLE IF NOT EXISTS ratings (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -172,8 +227,9 @@ def seed_database() -> None:
                 INSERT INTO agents
                     (agent_id, org_name, org_domain, contact_email,
                      verified, trust_score, transaction_count, flags,
-                     registered_at, last_active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     registered_at, last_active,
+                     endpoint_url, protocol, accepted_terms_format, settlement_rail)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     a["agent_id"],
@@ -184,14 +240,35 @@ def seed_database() -> None:
                     a["trust_score"],
                     a["transaction_count"],
                     json.dumps(a["flags"]),
-                    _now_minus(180 - i * 10),   # stagger registration dates
-                    _now_minus(i * 2),           # stagger last_active dates
+                    _now_minus(180 - i * 10),        # stagger registration dates
+                    _now_minus(i * 2),                # stagger last_active dates
+                    a.get("endpoint_url"),
+                    a.get("protocol"),
+                    a.get("accepted_terms_format"),
+                    a.get("settlement_rail"),
                 ),
             )
             inserted += 1
         except sqlite3.IntegrityError:
-            # Agent already exists — skip rather than overwrite
-            print(f"  [skip] {a['agent_id']} already in database.")
+            # Agent already exists — backfill routing columns if they're still NULL
+            conn.execute(
+                """
+                UPDATE agents
+                   SET endpoint_url          = COALESCE(endpoint_url,          ?),
+                       protocol              = COALESCE(protocol,              ?),
+                       accepted_terms_format = COALESCE(accepted_terms_format, ?),
+                       settlement_rail       = COALESCE(settlement_rail,       ?)
+                 WHERE agent_id = ?
+                """,
+                (
+                    a.get("endpoint_url"),
+                    a.get("protocol"),
+                    a.get("accepted_terms_format"),
+                    a.get("settlement_rail"),
+                    a["agent_id"],
+                ),
+            )
+            print(f"  [updated routing] {a['agent_id']}")
             skipped += 1
 
     conn.commit()

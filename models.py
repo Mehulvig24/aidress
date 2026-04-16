@@ -28,6 +28,13 @@ class RateRequest(BaseModel):
 
 # ── Response shapes ─────────────────────────────────────────────────────────
 
+class RoutingBlock(BaseModel):
+    # How to reach this agent and what payment/contract formats it speaks
+    endpoint_url:          Optional[str] = None   # e.g. "https://freightbot.io/api/agent"
+    protocol:              Optional[str] = None   # REST | GraphQL | gRPC
+    accepted_terms_format: Optional[str] = None   # JSON | XML
+    settlement_rail:       Optional[str] = None   # x402 | stripe | manual
+
 class TrustObject(BaseModel):
     # The core object PACT returns to describe an agent's trustworthiness
     agent_id:          str
@@ -39,6 +46,7 @@ class TrustObject(BaseModel):
     flags:             list[str]      = []
     registered_at:     Optional[datetime] = None
     last_active:       Optional[datetime] = None
+    routing:           Optional[RoutingBlock] = None  # connection and payment details
 
 class RegisterResponse(BaseModel):
     # Confirmation returned after a successful registration request
@@ -65,4 +73,5 @@ class AgentProfile(BaseModel):
     flags:             list[str]
     registered_at:     datetime
     last_active:       datetime
+    routing:           Optional[RoutingBlock] = None  # connection and payment details
     ratings_received:  list[RatingRecord] = []

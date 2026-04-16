@@ -40,7 +40,8 @@ app = FastAPI(
 def verify_agent(body: VerifyRequest):
     """
     Check whether an agent is registered and trustworthy.
-    Returns a full TrustObject, or a minimal unregistered response if not found.
+    Returns a full TrustObject — including the routing block (endpoint, protocol,
+    settlement rail) — or a minimal unregistered response if the agent is not found.
     """
     agent = db.get_agent(body.agent_id)
 

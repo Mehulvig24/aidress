@@ -26,18 +26,30 @@ def create_tables() -> None:
     with conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS agents (
-                agent_id          TEXT PRIMARY KEY,
-                org_name          TEXT NOT NULL,
-                org_domain        TEXT NOT NULL,
-                contact_email     TEXT NOT NULL,
-                verified          INTEGER NOT NULL DEFAULT 0,   -- 0 = false, 1 = true
-                trust_score       INTEGER NOT NULL DEFAULT 40,
-                transaction_count INTEGER NOT NULL DEFAULT 0,
-                flags             TEXT    NOT NULL DEFAULT '[]', -- JSON array
-                registered_at     TEXT    NOT NULL,
-                last_active       TEXT    NOT NULL
+                agent_id               TEXT PRIMARY KEY,
+                org_name               TEXT NOT NULL,
+                org_domain             TEXT NOT NULL,
+                contact_email          TEXT NOT NULL,
+                verified               INTEGER NOT NULL DEFAULT 0,   -- 0 = false, 1 = true
+                trust_score            INTEGER NOT NULL DEFAULT 40,
+                transaction_count      INTEGER NOT NULL DEFAULT 0,
+                flags                  TEXT    NOT NULL DEFAULT '[]', -- JSON array
+                registered_at          TEXT    NOT NULL,
+                last_active            TEXT    NOT NULL,
+                endpoint_url           TEXT,   -- the agent's reachable API address
+                protocol               TEXT,   -- REST | GraphQL | gRPC
+                accepted_terms_format  TEXT,   -- JSON | XML
+                settlement_rail        TEXT    -- x402 | stripe | manual
             )
         """)
+
+        # ── Live migration for databases created before routing columns existed ──
+        # SQLite does not support ADD COLUMN IF NOT EXISTS, so we attempt each
+        # ALTER and silently ignore the error if the column is already there.
+        _add_column_if_missing(conn, "agents", "endpoint_url",          "TEXT")
+        _add_column_if_missing(conn, "agents", "protocol",              "TEXT")
+        _add_column_if_missing(conn, "agents", "accepted_terms_format", "TEXT")
+        _add_column_if_missing(conn, "agents", "settlement_rail",       "TEXT")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS ratings (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -237,9 +249,30 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _add_column_if_missing(conn: sqlite3.Connection, table: str, column: str, col_type: str) -> None:
+    """Add a column to a table only if it doesn't already exist — safe to call repeatedly."""
+    try:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
+    except sqlite3.OperationalError:
+        pass  # column already present — nothing to do
+
+
 def _row_to_agent_dict(row: sqlite3.Row) -> dict:
-    """Convert a raw SQLite row into a plain Python dict with flags parsed from JSON."""
+    """Convert a raw SQLite row into a plain Python dict with flags parsed and routing nested."""
     d = dict(row)
     d["flags"]    = json.loads(d["flags"])
     d["verified"] = bool(d["verified"])
+
+    # Pull the four routing columns out of the flat row and bundle them into
+    # a nested dict so TrustObject can deserialise them as a RoutingBlock.
+    routing = {
+        "endpoint_url":          d.pop("endpoint_url",          None),
+        "protocol":              d.pop("protocol",              None),
+        "accepted_terms_format": d.pop("accepted_terms_format", None),
+        "settlement_rail":       d.pop("settlement_rail",       None),
+    }
+    # Only attach the block when at least one field is populated
+    if any(v is not None for v in routing.values()):
+        d["routing"] = routing
+
     return d
