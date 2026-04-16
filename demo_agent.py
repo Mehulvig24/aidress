@@ -9,7 +9,7 @@ import urllib.request
 import urllib.error
 import json
 
-PACT_BASE_URL = "http://localhost:8001"
+PACT_BASE_URL = "https://pact-protocol.onrender.com"
 
 
 # ── Core integration function ────────────────────────────────────────────────

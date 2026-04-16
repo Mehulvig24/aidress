@@ -16,7 +16,8 @@
       "Bash(curl -s http://localhost:8000/agent/agent_cargovfy_01)",
       "Bash(curl -s http://localhost:8000/registry)",
       "Bash(kill %1)",
-      "Bash(/Library/Frameworks/Python.framework/Versions/3.13/bin/uvicorn main:app --port 8001)"
+      "Bash(/Library/Frameworks/Python.framework/Versions/3.13/bin/uvicorn main:app --port 8001)",
+      "Bash(open *)"
     ]
   }
 }
