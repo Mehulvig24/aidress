@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Bash(pip3 install *)",
+      "Bash(python3 *)",
+      "Bash(/Library/Frameworks/Python.framework/Versions/3.13/bin/uvicorn main:app --port 8000)",
+      "Bash(curl -s -X POST http://localhost:8000/verify -H \"Content-Type: application/json\" -d '{\"agent_id\":\"agent_freightbot_01\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/verify -H \"Content-Type: application/json\" -d '{\"agent_id\":\"ghost_unknown_xyz\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/register -H 'Content-Type: application/json' -d '{\"agent_id\":\"agent_testco_01\",\"org_name\":\"TestCo Freight\",\"org_domain\":\"testco-freight.com\",\"contact_email\":\"bot@testco-freight.com\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/register -H 'Content-Type: application/json' -d '{\"agent_id\":\"agent_freightbot_01\",\"org_name\":\"FreightBot Logistics\",\"org_domain\":\"freightbot.io\",\"contact_email\":\"ops@freightbot.io\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\":\"agent_freightbot_01\",\"rated_agent_id\":\"agent_cargovfy_01\",\"score\":5,\"transaction_id\":\"txn_test_001\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\":\"agent_freightbot_01\",\"rated_agent_id\":\"agent_freightbot_01\",\"score\":5,\"transaction_id\":\"txn_test_002\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\":\"agent_freightbot_01\",\"rated_agent_id\":\"agent_shipchain_01\",\"score\":3,\"transaction_id\":\"txn_test_001\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\":\"agent_spoofex_99\",\"rated_agent_id\":\"agent_freightbot_01\",\"score\":1,\"transaction_id\":\"txn_test_003\"}')",
+      "Bash(curl -s http://localhost:8000/agent/agent_cargovfy_01)",
+      "Bash(curl -s http://localhost:8000/registry)",
+      "Bash(kill %1)"
+    ]
+  }
+}
