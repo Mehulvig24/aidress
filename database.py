@@ -39,17 +39,19 @@ def create_tables() -> None:
                 endpoint_url           TEXT,   -- the agent's reachable API address
                 protocol               TEXT,   -- REST | GraphQL | gRPC
                 accepted_terms_format  TEXT,   -- JSON | XML
-                settlement_rail        TEXT    -- x402 | stripe | manual
+                settlement_rail        TEXT,   -- x402 | stripe | manual
+                capabilities           TEXT    NOT NULL DEFAULT '[]'  -- JSON array of capability strings
             )
         """)
 
-        # ── Live migration for databases created before routing columns existed ──
+        # ── Live migration for databases created before routing/capability columns existed ──
         # SQLite does not support ADD COLUMN IF NOT EXISTS, so we attempt each
         # ALTER and silently ignore the error if the column is already there.
         _add_column_if_missing(conn, "agents", "endpoint_url",          "TEXT")
         _add_column_if_missing(conn, "agents", "protocol",              "TEXT")
         _add_column_if_missing(conn, "agents", "accepted_terms_format", "TEXT")
         _add_column_if_missing(conn, "agents", "settlement_rail",       "TEXT")
+        _add_column_if_missing(conn, "agents", "capabilities",          "TEXT NOT NULL DEFAULT '[]'")
         conn.execute("""
             CREATE TABLE IF NOT EXISTS ratings (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -119,6 +121,25 @@ def get_all_verified_agents() -> list[dict]:
     ).fetchall()
     conn.close()
     return [_row_to_agent_dict(r) for r in rows]
+
+
+def get_agents_with_capabilities(required: list[str]) -> list[dict]:
+    """
+    Return verified agents (trust_score >= 50) whose capabilities include
+    every capability in the required list, ranked by trust_score descending.
+    Capability matching is done in Python so the logic stays readable.
+    """
+    candidates = get_all_verified_agents()
+
+    required_set = set(required)
+    matches = [
+        a for a in candidates
+        if required_set.issubset(set(a.get("capabilities", [])))
+    ]
+
+    # Highest trust first so the caller gets the best options at the top
+    matches.sort(key=lambda a: a["trust_score"], reverse=True)
+    return matches
 
 
 def update_agent_trust_score(agent_id: str, new_score: int) -> None:
@@ -258,10 +279,11 @@ def _add_column_if_missing(conn: sqlite3.Connection, table: str, column: str, co
 
 
 def _row_to_agent_dict(row: sqlite3.Row) -> dict:
-    """Convert a raw SQLite row into a plain Python dict with flags parsed and routing nested."""
+    """Convert a raw SQLite row into a plain Python dict with flags/capabilities parsed and routing nested."""
     d = dict(row)
-    d["flags"]    = json.loads(d["flags"])
-    d["verified"] = bool(d["verified"])
+    d["flags"]        = json.loads(d["flags"])
+    d["capabilities"] = json.loads(d.get("capabilities") or "[]")
+    d["verified"]     = bool(d["verified"])
 
     # Pull the four routing columns out of the flat row and bundle them into
     # a nested dict so TrustObject can deserialise them as a RoutingBlock.

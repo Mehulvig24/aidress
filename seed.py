@@ -24,6 +24,7 @@ CLEAN_AGENTS = [
         "protocol":               "REST",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "x402",
+        "capabilities":           ["freight_booking", "customs_clearance", "shipment_tracking", "carrier_negotiation"],
     },
     {
         "agent_id":               "agent_cargovfy_01",
@@ -38,6 +39,7 @@ CLEAN_AGENTS = [
         "protocol":               "REST",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "stripe",
+        "capabilities":           ["cargo_verification", "document_validation", "compliance_check", "certificate_issuance"],
     },
     {
         "agent_id":               "agent_shipchain_01",
@@ -52,6 +54,7 @@ CLEAN_AGENTS = [
         "protocol":               "gRPC",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "x402",
+        "capabilities":           ["freight_booking", "shipment_tracking", "port_coordination", "bill_of_lading"],
     },
     {
         "agent_id":               "agent_tradelens_01",
@@ -66,6 +69,7 @@ CLEAN_AGENTS = [
         "protocol":               "GraphQL",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "stripe",
+        "capabilities":           ["trade_finance", "document_validation", "customs_clearance", "compliance_check"],
     },
     {
         "agent_id":               "agent_portex_01",
@@ -80,6 +84,7 @@ CLEAN_AGENTS = [
         "protocol":               "REST",
         "accepted_terms_format":  "XML",
         "settlement_rail":        "manual",
+        "capabilities":           ["port_coordination", "container_management", "yard_scheduling", "vessel_tracking"],
     },
     {
         "agent_id":               "agent_routeiq_01",
@@ -94,6 +99,7 @@ CLEAN_AGENTS = [
         "protocol":               "REST",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "x402",
+        "capabilities":           ["route_optimisation", "last_mile_delivery", "schedule_management", "fleet_dispatch"],
     },
     {
         "agent_id":               "agent_supplylink_01",
@@ -108,10 +114,11 @@ CLEAN_AGENTS = [
         "protocol":               "gRPC",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "manual",
+        "capabilities":           ["supplier_onboarding", "inventory_sync", "purchase_order_management", "demand_forecasting"],
     },
 ]
 
-# 2 flagged agents: low trust, specific misconduct flags
+# 2 flagged agents: low trust — capabilities are limited or absent due to misconduct
 FLAGGED_AGENTS = [
     {
         "agent_id":               "agent_spoofex_99",
@@ -126,6 +133,7 @@ FLAGGED_AGENTS = [
         "protocol":               "REST",
         "accepted_terms_format":  "JSON",
         "settlement_rail":        "manual",
+        "capabilities":           ["freight_booking"],   # stripped down due to dispute history
     },
     {
         "agent_id":               "agent_fakecargo_77",
@@ -140,10 +148,11 @@ FLAGGED_AGENTS = [
         "protocol":               "REST",
         "accepted_terms_format":  "XML",
         "settlement_rail":        "manual",
+        "capabilities":           [],   # no verified capabilities — fabricated output flag
     },
 ]
 
-# 1 unregistered / shadow agent — no routing info because it was never properly onboarded
+# 1 unregistered / shadow agent — no routing or capabilities; never properly onboarded
 UNREGISTERED_AGENT = [
     {
         "agent_id":               "agent_ghost_00",
@@ -158,6 +167,7 @@ UNREGISTERED_AGENT = [
         "protocol":               None,
         "accepted_terms_format":  None,
         "settlement_rail":        None,
+        "capabilities":           [],
     },
 ]
 
@@ -190,15 +200,17 @@ def seed_database() -> None:
             endpoint_url           TEXT,
             protocol               TEXT,
             accepted_terms_format  TEXT,
-            settlement_rail        TEXT
+            settlement_rail        TEXT,
+            capabilities           TEXT    NOT NULL DEFAULT '[]'
         )
     """)
-    # Migrate existing databases that predate the routing columns
+    # Migrate existing databases that predate the routing/capability columns
     for col, col_type in [
         ("endpoint_url",          "TEXT"),
         ("protocol",              "TEXT"),
         ("accepted_terms_format", "TEXT"),
         ("settlement_rail",       "TEXT"),
+        ("capabilities",          "TEXT NOT NULL DEFAULT '[]'"),
     ]:
         try:
             conn.execute(f"ALTER TABLE agents ADD COLUMN {col} {col_type}")
@@ -228,8 +240,9 @@ def seed_database() -> None:
                     (agent_id, org_name, org_domain, contact_email,
                      verified, trust_score, transaction_count, flags,
                      registered_at, last_active,
-                     endpoint_url, protocol, accepted_terms_format, settlement_rail)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     endpoint_url, protocol, accepted_terms_format, settlement_rail,
+                     capabilities)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     a["agent_id"],
@@ -246,18 +259,23 @@ def seed_database() -> None:
                     a.get("protocol"),
                     a.get("accepted_terms_format"),
                     a.get("settlement_rail"),
+                    json.dumps(a.get("capabilities", [])),
                 ),
             )
             inserted += 1
         except sqlite3.IntegrityError:
-            # Agent already exists — backfill routing columns if they're still NULL
+            # Agent already exists — backfill routing and capability columns if still NULL/empty
             conn.execute(
                 """
                 UPDATE agents
                    SET endpoint_url          = COALESCE(endpoint_url,          ?),
                        protocol              = COALESCE(protocol,              ?),
                        accepted_terms_format = COALESCE(accepted_terms_format, ?),
-                       settlement_rail       = COALESCE(settlement_rail,       ?)
+                       settlement_rail       = COALESCE(settlement_rail,       ?),
+                       capabilities          = CASE
+                                                 WHEN capabilities IS NULL OR capabilities = '[]'
+                                                 THEN ? ELSE capabilities
+                                               END
                  WHERE agent_id = ?
                 """,
                 (
@@ -265,10 +283,11 @@ def seed_database() -> None:
                     a.get("protocol"),
                     a.get("accepted_terms_format"),
                     a.get("settlement_rail"),
+                    json.dumps(a.get("capabilities", [])),
                     a["agent_id"],
                 ),
             )
-            print(f"  [updated routing] {a['agent_id']}")
+            print(f"  [updated routing+capabilities] {a['agent_id']}")
             skipped += 1
 
     conn.commit()

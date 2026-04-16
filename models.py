@@ -25,6 +25,10 @@ class RateRequest(BaseModel):
     score:          int  = Field(..., ge=1, le=5, description="Rating from 1 (terrible) to 5 (excellent)")
     transaction_id: str
 
+class MatchRequest(BaseModel):
+    # Capability query — describe what you need and PACT finds who can do it
+    required_capabilities: list[str] = Field(..., min_length=1)
+
 
 # ── Response shapes ─────────────────────────────────────────────────────────
 
@@ -44,6 +48,7 @@ class TrustObject(BaseModel):
     trust_score:       int
     transaction_count: int            = 0
     flags:             list[str]      = []
+    capabilities:      list[str]      = []   # what this agent can do
     registered_at:     Optional[datetime] = None
     last_active:       Optional[datetime] = None
     routing:           Optional[RoutingBlock] = None  # connection and payment details
@@ -71,6 +76,7 @@ class AgentProfile(BaseModel):
     trust_score:       int
     transaction_count: int
     flags:             list[str]
+    capabilities:      list[str]      = []   # what this agent can do
     registered_at:     datetime
     last_active:       datetime
     routing:           Optional[RoutingBlock] = None  # connection and payment details

@@ -9,6 +9,7 @@ from models import (
     VerifyRequest,
     RegisterRequest,
     RateRequest,
+    MatchRequest,
     TrustObject,
     RegisterResponse,
     AgentProfile,
@@ -194,3 +195,17 @@ def get_registry():
     """
     agents = db.get_all_verified_agents()
     return [TrustObject(**a) for a in agents]
+
+
+# ── 6. POST /match ────────────────────────────────────────────────────────────
+
+@app.post("/match", response_model=list[TrustObject], summary="Find agents by required capabilities")
+def match_agents(body: MatchRequest):
+    """
+    Capability discovery endpoint — describe what you need, get back who can do it.
+    Returns verified agents (trust_score >= 50) that have ALL the required capabilities,
+    ranked by trust_score descending so the most trusted option is always first.
+    Returns an empty list if no agents match.
+    """
+    matches = db.get_agents_with_capabilities(body.required_capabilities)
+    return [TrustObject(**a) for a in matches]
