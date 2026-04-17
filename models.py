@@ -11,6 +11,7 @@ class VerifyRequest(BaseModel):
     # The ID of the agent being looked up
     agent_id: str
 
+
 class RegisterRequest(BaseModel):
     # All fields required to onboard a new agent
     agent_id:      str
@@ -18,12 +19,14 @@ class RegisterRequest(BaseModel):
     org_domain:    str
     contact_email: str
 
+
 class RateRequest(BaseModel):
     # A trust rating submitted after a transaction between two agents
     rater_agent_id: str
     rated_agent_id: str
     score:          int  = Field(..., ge=1, le=5, description="Rating from 1 (terrible) to 5 (excellent)")
     transaction_id: str
+
 
 class MatchRequest(BaseModel):
     # Capability query — describe what you need and PACT finds who can do it
@@ -39,6 +42,7 @@ class RoutingBlock(BaseModel):
     accepted_terms_format: Optional[str] = None   # JSON | XML
     settlement_rail:       Optional[str] = None   # x402 | stripe | manual
 
+
 class TrustObject(BaseModel):
     # The core object PACT returns to describe an agent's trustworthiness
     agent_id:          str
@@ -53,11 +57,13 @@ class TrustObject(BaseModel):
     last_active:       Optional[datetime] = None
     routing:           Optional[RoutingBlock] = None  # connection and payment details
 
+
 class RegisterResponse(BaseModel):
     # Confirmation returned after a successful registration request
     agent_id: str
     status:   str   # always "pending_review" on creation
     message:  str
+
 
 class RatingRecord(BaseModel):
     # A single rating entry as stored in the database
@@ -66,6 +72,7 @@ class RatingRecord(BaseModel):
     score:          int
     transaction_id: str
     created_at:     datetime
+
 
 class AgentProfile(BaseModel):
     # Full agent record including all ratings received

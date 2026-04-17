@@ -1,9 +1,10 @@
 # main.py — PACT Protocol API: all five endpoints wired up with FastAPI
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
 
 import database as db
 from models import (

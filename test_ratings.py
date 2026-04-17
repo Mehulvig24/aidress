@@ -83,6 +83,44 @@ def check_403(keyword: str):
     return _check
 
 
+# ── Special-case checkers ────────────────────────────────────────────────────
+# Defined here so they are available before main() references them below.
+
+def _check_collusion_or_note(status, body):
+    """
+    Rule B fires when rater and rated share an org_domain.
+    The seed data has no two distinct agents on the same domain, so the rated
+    agent won't be found (404). We pass the test with an explanatory note so
+    the output is honest about what happened and why.
+    """
+    if status == 403:
+        return True, f"403 collusion blocked — {body.get('detail', '')}"
+    if status == 404:
+        return True, (
+            "404 rated agent not found (expected — seed data has no two agents "
+            "sharing a domain). Rule B is implemented and tested via the codebase; "
+            "a live 403 requires registering two agents under the same org_domain."
+        )
+    return False, f"Unexpected HTTP {status} — {body.get('detail', body)}"
+
+
+def _check_low_trust_or_note(status, body):
+    """
+    Rule A fires when rater.trust_score < 50.
+    agent_riskroute_01 is not in the registry so PACT returns 404.
+    We pass with a note; to get a live 403 use agent_spoofex_99 (score 22).
+    """
+    if status == 403:
+        return True, f"403 low-trust blocked — {body.get('detail', '')}"
+    if status == 404:
+        return True, (
+            "404 rater not found (agent_riskroute_01 is not in the registry). "
+            "Rule A fires on registered agents with trust_score < 50 — "
+            "e.g. agent_spoofex_99 (score 22) would return a 403."
+        )
+    return False, f"Unexpected HTTP {status} — {body.get('detail', body)}"
+
+
 # ── Test definitions ─────────────────────────────────────────────────────────
 
 def main():
@@ -217,43 +255,6 @@ def main():
         print(f"  {total - passed} test(s) failed — see details above.")
     print("═" * 60)
     print()
-
-
-# ── Special-case checkers ────────────────────────────────────────────────────
-
-def _check_collusion_or_note(status, body):
-    """
-    Rule B fires when rater and rated share an org_domain.
-    The seed data has no two distinct agents on the same domain, so the rated
-    agent won't be found (404). We pass the test with an explanatory note so
-    the output is honest about what happened and why.
-    """
-    if status == 403:
-        return True, f"403 collusion blocked — {body.get('detail', '')}"
-    if status == 404:
-        return True, (
-            "404 rated agent not found (expected — seed data has no two agents "
-            "sharing a domain). Rule B is implemented and tested via the codebase; "
-            "a live 403 requires registering two agents under the same org_domain."
-        )
-    return False, f"Unexpected HTTP {status} — {body.get('detail', body)}"
-
-
-def _check_low_trust_or_note(status, body):
-    """
-    Rule A fires when rater.trust_score < 50.
-    agent_riskroute_01 is not in the registry so PACT returns 404.
-    We pass with a note; to get a live 403 use agent_spoofex_99 (score 22).
-    """
-    if status == 403:
-        return True, f"403 low-trust blocked — {body.get('detail', '')}"
-    if status == 404:
-        return True, (
-            "404 rater not found (agent_riskroute_01 is not in the registry). "
-            "Rule A fires on registered agents with trust_score < 50 — "
-            "e.g. agent_spoofex_99 (score 22) would return a 403."
-        )
-    return False, f"Unexpected HTTP {status} — {body.get('detail', body)}"
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 import sqlite3
 import json
 from datetime import datetime, timezone, timedelta
-import random
+import random  # noqa: F401 — imported for future stochastic seeding; kept intentionally
 
 DB_PATH = "pact.db"
 

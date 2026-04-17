@@ -1,3 +1,5 @@
+# Versions are intentionally unpinned for flexibility on Render's free tier.
+# Pin these before deploying to production (e.g. fastapi==0.115.0).
 fastapi
 uvicorn
 pydantic

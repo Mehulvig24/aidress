@@ -116,6 +116,18 @@ Returns all agents where `verified = true` AND `trust_score >= 50`.
 
 ---
 
+### `POST /match` — Find agents by required capabilities
+
+```bash
+curl -s -X POST http://localhost:8000/match \
+  -H "Content-Type: application/json" \
+  -d '{"required_capabilities": ["freight_booking", "customs_clearance"]}' | python -m json.tool
+```
+
+Returns verified agents (trust_score ≥ 50) that have **all** the required capabilities, ranked by trust_score descending. Returns an empty list if nothing matches.
+
+---
+
 ## Seed agents reference
 
 | Agent ID | Org | Score | Flags |
@@ -137,13 +149,18 @@ Returns all agents where `verified = true` AND `trust_score >= 50`.
 
 ```
 pact-protocol/
-  main.py          # FastAPI app — all five endpoints
+  main.py          # FastAPI app — all six endpoints
   database.py      # SQLite setup and every DB operation
   models.py        # Pydantic request/response schemas
   seed.py          # Seed script for the logistics test dataset
-  requirements.txt # Python dependencies
+  pact_sdk.py      # Standalone Python SDK (no external dependencies)
+  demo_agent.py    # Simulates an agent using PACT to vet counterparts
+  test_ratings.py  # Integration tests for the POST /rate anti-gaming rules
+  index.html       # Single-file demo UI
+  Procfile         # Render deployment config
+  requirements.txt # Python dependencies (unpinned — pin before production)
   README.md        # This file
-  pact.db          # SQLite database (auto-created on first run)
+  pact.db          # SQLite database (auto-created on first run, gitignored)
 ```
 
 ---
