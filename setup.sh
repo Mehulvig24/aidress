@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 # setup.sh — One-command installer for PACT demo aliases on macOS
 #
-# Adds curl shortcuts for every PACT endpoint to ~/.zshrc so developers
+# Writes curl shortcuts for every PACT endpoint into ~/.zshrc so developers
 # can explore the live API without writing any curl commands themselves.
 #
-# Safe to run multiple times — checks for each alias before adding it,
-# so nothing is duplicated on a second run.
+# Idempotent: removes all existing pact- aliases before re-writing, so running
+# this script a second time produces a clean, duplicate-free result.
 #
 # Usage:
-#   chmod +x setup.sh && ./setup.sh
-#   — or —
 #   bash setup.sh
 
 set -euo pipefail
@@ -17,160 +15,103 @@ set -euo pipefail
 ZSHRC="$HOME/.zshrc"
 BASE="https://pact-protocol.onrender.com"
 
-# ── Helper: append alias only if the alias name is not already in ~/.zshrc ──
-
-add_alias() {
-    local name="$1"   # alias name, e.g. pact-wake
-    local cmd="$2"    # full shell command the alias expands to
-
-    # grep -q returns 0 if found — skip if any line already defines this alias
-    if grep -q "alias ${name}=" "$ZSHRC" 2>/dev/null; then
-        echo "  [skip]  $name already exists"
-    else
-        # Escape any bare " in cmd to \" so the alias is valid inside double quotes.
-        # printf is used instead of echo to avoid interpreting backslash sequences.
-        local escaped_cmd="${cmd//\"/\\\"}"
-        printf 'alias %s="%s"\n' "$name" "$escaped_cmd" >> "$ZSHRC"
-        echo "  [added] $name"
-    fi
-}
-
-
-# ── Section header printed during install for readability ───────────────────
-
-section() {
-    echo ""
-    echo "── $1"
-}
-
-
-# ── Begin install ────────────────────────────────────────────────────────────
-
 echo ""
-echo "PACT — Installing aliases into $ZSHRC"
+echo "PACT — Installer"
 echo "══════════════════════════════════════════════"
+echo ""
 
+# ── Step 1: Remove any existing pact- aliases ────────────────────────────────
+# Deletes every line containing "pact-" so re-runs don't accumulate duplicates.
 
-# ── Wake + Network ───────────────────────────────────────────────────────────
-# pact-wake is a raw curl with no pretty-print — intentionally fast, used to
-# warm up Render's free-tier server before running any other commands.
+echo "Removing existing pact- aliases from $ZSHRC ..."
+sed -i '' '/pact-/d' "$ZSHRC"
+echo "  [done]"
+echo ""
 
-section "Wake + Network"
+# ── Step 2: Append all aliases via a quoted-delimiter heredoc ────────────────
+# <<'EOF' (quoted delimiter) means the heredoc body is treated as a literal
+# string — zero variable expansion, zero quote interpretation by bash.
+# This guarantees that every alias is written exactly as typed, with the
+# correct quoting pattern:
+#
+#   alias name='curl ... -H "Content-Type: application/json" -d "{\"key\": \"val\"}"'
+#
+# Single quotes wrap the whole command (safe for the shell to store the alias).
+# Double quotes wrap the header value and JSON body.
+# \" inside the JSON body becomes " when the alias is actually invoked.
 
-add_alias "pact-wake" \
-    "curl -s ${BASE}/registry"
+echo "Writing aliases to $ZSHRC ..."
 
-add_alias "pact-registry" \
-    "curl -s ${BASE}/registry | python3 -m json.tool"
+cat >> "$ZSHRC" << 'EOF'
 
+# ── PACT aliases ─────────────────────────────────────────────────────────────
 
-# ── Verify ───────────────────────────────────────────────────────────────────
-# Covers all three trust outcomes: proceed (score 88), abort (low-trust flag),
-# and unregistered (no record at all). pact-verify-registered checks the agent
-# created by pact-register so demos can be run end-to-end in sequence.
+# Wake + Network
+alias pact-wake='curl -s https://pact-protocol.onrender.com/registry'
+alias pact-registry='curl -s https://pact-protocol.onrender.com/registry | python3 -m json.tool'
 
-section "Verify"
+# Verify
+alias pact-verify-good='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"agent_freightbot_01\"}" | python3 -m json.tool'
+alias pact-verify-flagged='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"agent_riskroute_01\"}" | python3 -m json.tool'
+alias pact-verify-unknown='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"unknown-agent-999\"}" | python3 -m json.tool'
+alias pact-verify-registered='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"demo-agent-001\"}" | python3 -m json.tool'
 
-add_alias "pact-verify-good" \
-    "curl -s -X POST ${BASE}/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"agent_freightbot_01\"}' | python3 -m json.tool"
+# Agent Profile
+alias pact-agent-freightbot='curl -s https://pact-protocol.onrender.com/agent/agent_freightbot_01 | python3 -m json.tool'
+alias pact-agent-shipchain='curl -s https://pact-protocol.onrender.com/agent/agent_shipchain_01 | python3 -m json.tool'
+alias pact-agent-cargovfy='curl -s https://pact-protocol.onrender.com/agent/agent_cargovfy_01 | python3 -m json.tool'
 
-add_alias "pact-verify-flagged" \
-    "curl -s -X POST ${BASE}/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"agent_riskroute_01\"}' | python3 -m json.tool"
+# Discovery
+alias pact-match-freight='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d "{\"required_capabilities\": [\"freight_booking\", \"customs_clearance\"]}" | python3 -m json.tool'
+alias pact-match-routing='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d "{\"required_capabilities\": [\"route_optimisation\", \"last_mile_delivery\"]}" | python3 -m json.tool'
+alias pact-match-customs='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d "{\"required_capabilities\": [\"customs_clearance\", \"compliance_check\"]}" | python3 -m json.tool'
 
-add_alias "pact-verify-unknown" \
-    "curl -s -X POST ${BASE}/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"unknown-agent-999\"}' | python3 -m json.tool"
+# Register
+alias pact-register='curl -s -X POST https://pact-protocol.onrender.com/register -H "Content-Type: application/json" -d "{\"agent_id\": \"demo-agent-001\", \"org_name\": \"Demo Corp\", \"org_domain\": \"democorp.com\", \"contact_email\": \"demo@democorp.com\"}" | python3 -m json.tool'
 
-add_alias "pact-verify-registered" \
-    "curl -s -X POST ${BASE}/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"demo-agent-001\"}' | python3 -m json.tool"
+# Rating — valid
+alias pact-rate-valid='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-001\"}" | python3 -m json.tool'
 
+# Rating — anti-gaming (each should return HTTP 403)
+alias pact-rate-self='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_freightbot_01\", \"score\": 5, \"transaction_id\": \"txn-demo-002\"}" | python3 -m json.tool'
+alias pact-rate-dupe='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-001\"}" | python3 -m json.tool'
+alias pact-rate-blocked='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_riskroute_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-003\"}" | python3 -m json.tool'
 
-# ── Agent Profile ────────────────────────────────────────────────────────────
-# Full record including all ratings received — useful for showing the
-# ratings_received array and routing block in a demo.
+# Local dev
+alias pact-demo='cd ~/Desktop/pact-protocol && python3 demo_agent.py'
+alias pact-server='cd ~/Desktop/pact-protocol && python3 -m uvicorn main:app --reload --port 8001'
+alias pact-push='git add . && git commit -m "update" && git push'
+alias pact-sdk='cd ~/Desktop/pact-protocol && python3 pact_sdk.py'
 
-section "Agent Profile"
+# ─────────────────────────────────────────────────────────────────────────────
+EOF
 
-add_alias "pact-agent-freightbot" \
-    "curl -s ${BASE}/agent/agent_freightbot_01 | python3 -m json.tool"
+echo "  [done]"
+echo ""
 
-add_alias "pact-agent-shipchain" \
-    "curl -s ${BASE}/agent/agent_shipchain_01 | python3 -m json.tool"
+# ── Step 3: Reload shell config so aliases are available immediately ─────────
 
-add_alias "pact-agent-cargovfy" \
-    "curl -s ${BASE}/agent/agent_cargovfy_01 | python3 -m json.tool"
+echo "Reloading $ZSHRC ..."
+# shellcheck disable=SC1090
+source "$ZSHRC"
+echo "  [done]"
 
-
-# ── Discovery ────────────────────────────────────────────────────────────────
-# /match returns verified agents (score >= 50) that have ALL listed capabilities,
-# ranked by trust_score descending — best option is always first in the array.
-
-section "Discovery"
-
-add_alias "pact-match-freight" \
-    "curl -s -X POST ${BASE}/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"freight_booking\", \"customs_clearance\"]}' | python3 -m json.tool"
-
-add_alias "pact-match-routing" \
-    "curl -s -X POST ${BASE}/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"route_optimisation\", \"last_mile_delivery\"]}' | python3 -m json.tool"
-
-add_alias "pact-match-customs" \
-    "curl -s -X POST ${BASE}/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"customs_clearance\", \"compliance_check\"]}' | python3 -m json.tool"
-
-
-# ── Register ─────────────────────────────────────────────────────────────────
-# Creates demo-agent-001 with a starting trust_score of 40 (pending review).
-# Returns 409 if the agent_id or org_domain is already taken — idempotent to run.
-
-section "Register"
-
-add_alias "pact-register" \
-    "curl -s -X POST ${BASE}/register -H 'Content-Type: application/json' -d '{\"agent_id\": \"demo-agent-001\", \"org_name\": \"Demo Corp\", \"org_domain\": \"democorp.com\", \"contact_email\": \"demo@democorp.com\"}' | python3 -m json.tool"
-
-
-# ── Rating — valid ───────────────────────────────────────────────────────────
-# Submits a score-5 rating from freightbot_01 (score 88, qualifies as rater)
-# to shipchain_01. Uses transaction_id txn-demo-001.
-
-section "Rating — valid"
-
-add_alias "pact-rate-valid" \
-    "curl -s -X POST ${BASE}/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-001\"}' | python3 -m json.tool"
-
-
-# ── Rating — anti-gaming demos ───────────────────────────────────────────────
-# Each of these should return HTTP 403 with a specific rule violation message:
-#   pact-rate-self    → Rule D: cannot rate yourself
-#   pact-rate-dupe    → Rule C: txn-demo-001 already used above
-#   pact-rate-blocked → Rule A: agent_riskroute_01 is not in the registry (404)
-#                       or has trust_score < 50 (403) — both mean blocked
-
-section "Rating — anti-gaming"
-
-add_alias "pact-rate-self" \
-    "curl -s -X POST ${BASE}/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_freightbot_01\", \"score\": 5, \"transaction_id\": \"txn-demo-002\"}' | python3 -m json.tool"
-
-add_alias "pact-rate-dupe" \
-    "curl -s -X POST ${BASE}/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-001\"}' | python3 -m json.tool"
-
-add_alias "pact-rate-blocked" \
-    "curl -s -X POST ${BASE}/rate -H 'Content-Type: application/json' -d '{\"rater_agent_id\": \"agent_riskroute_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-003\"}' | python3 -m json.tool"
-
-
-# ── Reload shell config so aliases are live immediately ─────────────────────
+# ── Step 4: Confirm the quote pattern is correct ─────────────────────────────
+# Grep pact-verify-good out of .zshrc so the caller can see the exact string
+# that was written and verify the quoting is valid before using any alias.
 
 echo ""
-echo "── Reloading ~/.zshrc"
-# shellcheck disable=SC1090  — path is intentionally dynamic
-source "$ZSHRC"
+echo "── Quote check (pact-verify-good as written to $ZSHRC):"
+grep "pact-verify-good" "$ZSHRC"
 
-
-# ── Confirmation ─────────────────────────────────────────────────────────────
+# ── Step 5: Print full alias reference ───────────────────────────────────────
 
 echo ""
 echo "PACT — Setup Complete"
 echo "══════════════════════════════════════════════"
 echo ""
 echo "NETWORK"
-echo "  pact-wake              Wake up Render server"
+echo "  pact-wake              Wake up Render server (raw, no formatting)"
 echo "  pact-registry          See all trusted agents on the network"
 echo ""
 echo "VERIFY"
@@ -193,13 +134,19 @@ echo "REGISTER"
 echo "  pact-register          Register a new agent on the network"
 echo ""
 echo "RATING"
-echo "  pact-rate-valid        Submit a valid rating"
-echo "  pact-rate-self         Attempt self rating (blocked)"
-echo "  pact-rate-dupe         Attempt duplicate rating (blocked)"
-echo "  pact-rate-blocked      Unregistered agent attempts rating (blocked)"
+echo "  pact-rate-valid        Submit a valid rating (freightbot → shipchain)"
+echo "  pact-rate-self         Attempt self-rating — blocked (Rule D)"
+echo "  pact-rate-dupe         Attempt duplicate transaction — blocked (Rule C)"
+echo "  pact-rate-blocked      Low-trust rater attempt — blocked (Rule A)"
+echo ""
+echo "LOCAL DEV"
+echo "  pact-demo              Run demo_agent.py against live server"
+echo "  pact-server            Start local API server on port 8001"
+echo "  pact-push              git add + commit + push from current directory"
+echo "  pact-sdk               Run pact_sdk.py demo"
 echo ""
 echo "══════════════════════════════════════════════"
-echo "PACT is live at ${BASE}"
+echo "PACT is live at $BASE"
 echo "Start with: pact-wake → pact-registry → pact-verify-good"
 echo "══════════════════════════════════════════════"
 echo ""
