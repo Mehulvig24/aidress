@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 # setup.sh — One-command installer for PACT demo aliases on macOS
 #
-# Writes curl shortcuts for every PACT endpoint into ~/.zshrc so developers
-# can explore the live API without writing any curl commands themselves.
+# Writes curl shortcuts for every PACT endpoint into ~/.zshrc.
 #
-# Idempotent: removes all existing pact- aliases before re-writing, so running
-# this script a second time produces a clean, duplicate-free result.
+# Idempotent: strips all existing pact- lines before re-writing, so running
+# the script twice produces a clean, duplicate-free result.
+#
+# Quoting strategy:
+#   Every alias uses single quotes as the outer delimiter. JSON bodies are
+#   embedded using the '\'' technique — end the single-quoted string, insert
+#   a literal ' via backslash-escape, then open a new single-quoted string.
+#   This means the JSON needs zero escaping and is passed to curl verbatim.
+#
+#   Pattern:  alias name='curl ... -d '\''{"key": "val"}'\'' | python3 ...'
 #
 # Usage:
 #   bash setup.sh
@@ -29,16 +36,9 @@ echo "  [done]"
 echo ""
 
 # ── Step 2: Append all aliases via a quoted-delimiter heredoc ────────────────
-# <<'EOF' (quoted delimiter) means the heredoc body is treated as a literal
-# string — zero variable expansion, zero quote interpretation by bash.
-# This guarantees that every alias is written exactly as typed, with the
-# correct quoting pattern:
-#
-#   alias name='curl ... -H "Content-Type: application/json" -d "{\"key\": \"val\"}"'
-#
-# Single quotes wrap the whole command (safe for the shell to store the alias).
-# Double quotes wrap the header value and JSON body.
-# \" inside the JSON body becomes " when the alias is actually invoked.
+# <<'EOF' treats the body as a completely literal string — no variable
+# expansion, no quote interpretation by bash. The '\'' sequences are written
+# verbatim and interpreted by zsh when it sources ~/.zshrc.
 
 echo "Writing aliases to $ZSHRC ..."
 
@@ -51,10 +51,10 @@ alias pact-wake='curl -s https://pact-protocol.onrender.com/registry'
 alias pact-registry='curl -s https://pact-protocol.onrender.com/registry | python3 -m json.tool'
 
 # Verify
-alias pact-verify-good='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"agent_freightbot_01\"}" | python3 -m json.tool'
-alias pact-verify-flagged='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"agent_riskroute_01\"}" | python3 -m json.tool'
-alias pact-verify-unknown='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"unknown-agent-999\"}" | python3 -m json.tool'
-alias pact-verify-registered='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d "{\"agent_id\": \"demo-agent-001\"}" | python3 -m json.tool'
+alias pact-verify-good='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "agent_freightbot_01"}'\'' | python3 -m json.tool'
+alias pact-verify-flagged='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "agent_riskroute_01"}'\'' | python3 -m json.tool'
+alias pact-verify-unknown='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "unknown-agent-999"}'\'' | python3 -m json.tool'
+alias pact-verify-registered='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "demo-agent-001"}'\'' | python3 -m json.tool'
 
 # Agent Profile
 alias pact-agent-freightbot='curl -s https://pact-protocol.onrender.com/agent/agent_freightbot_01 | python3 -m json.tool'
@@ -62,20 +62,20 @@ alias pact-agent-shipchain='curl -s https://pact-protocol.onrender.com/agent/age
 alias pact-agent-cargovfy='curl -s https://pact-protocol.onrender.com/agent/agent_cargovfy_01 | python3 -m json.tool'
 
 # Discovery
-alias pact-match-freight='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d "{\"required_capabilities\": [\"freight_booking\", \"customs_clearance\"]}" | python3 -m json.tool'
-alias pact-match-routing='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d "{\"required_capabilities\": [\"route_optimisation\", \"last_mile_delivery\"]}" | python3 -m json.tool'
-alias pact-match-customs='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d "{\"required_capabilities\": [\"customs_clearance\", \"compliance_check\"]}" | python3 -m json.tool'
+alias pact-match-freight='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["freight_booking", "customs_clearance"]}'\'' | python3 -m json.tool'
+alias pact-match-routing='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["route_optimisation", "last_mile_delivery"]}'\'' | python3 -m json.tool'
+alias pact-match-customs='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["customs_clearance", "compliance_check"]}'\'' | python3 -m json.tool'
 
 # Register
-alias pact-register='curl -s -X POST https://pact-protocol.onrender.com/register -H "Content-Type: application/json" -d "{\"agent_id\": \"demo-agent-001\", \"org_name\": \"Demo Corp\", \"org_domain\": \"democorp.com\", \"contact_email\": \"demo@democorp.com\"}" | python3 -m json.tool'
+alias pact-register='curl -s -X POST https://pact-protocol.onrender.com/register -H "Content-Type: application/json" -d '\''{"agent_id": "demo-agent-001", "org_name": "Demo Corp", "org_domain": "democorp.com", "contact_email": "demo@democorp.com"}'\'' | python3 -m json.tool'
 
 # Rating — valid
-alias pact-rate-valid='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-001\"}" | python3 -m json.tool'
+alias pact-rate-valid='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-001"}'\'' | python3 -m json.tool'
 
-# Rating — anti-gaming (each should return HTTP 403)
-alias pact-rate-self='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_freightbot_01\", \"score\": 5, \"transaction_id\": \"txn-demo-002\"}" | python3 -m json.tool'
-alias pact-rate-dupe='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_freightbot_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-001\"}" | python3 -m json.tool'
-alias pact-rate-blocked='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d "{\"rater_agent_id\": \"agent_riskroute_01\", \"rated_agent_id\": \"agent_shipchain_01\", \"score\": 5, \"transaction_id\": \"txn-demo-003\"}" | python3 -m json.tool'
+# Rating — anti-gaming (each returns HTTP 403)
+alias pact-rate-self='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_freightbot_01", "score": 5, "transaction_id": "txn-demo-002"}'\'' | python3 -m json.tool'
+alias pact-rate-dupe='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-001"}'\'' | python3 -m json.tool'
+alias pact-rate-blocked='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_riskroute_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-003"}'\'' | python3 -m json.tool'
 
 # Local dev
 alias pact-demo='cd ~/Desktop/pact-protocol && python3 demo_agent.py'
@@ -89,22 +89,22 @@ EOF
 echo "  [done]"
 echo ""
 
-# ── Step 3: Reload shell config so aliases are available immediately ─────────
+# ── Step 3: Reload shell config ──────────────────────────────────────────────
 
 echo "Reloading $ZSHRC ..."
 # shellcheck disable=SC1090
 source "$ZSHRC"
 echo "  [done]"
 
-# ── Step 4: Confirm the quote pattern is correct ─────────────────────────────
-# Grep pact-verify-good out of .zshrc so the caller can see the exact string
-# that was written and verify the quoting is valid before using any alias.
+# ── Step 4: Quote check ───────────────────────────────────────────────────────
+# Print pact-verify-good exactly as written to ~/.zshrc so you can confirm
+# the '\'' quoting pattern is intact before running any alias.
 
 echo ""
 echo "── Quote check (pact-verify-good as written to $ZSHRC):"
 grep "pact-verify-good" "$ZSHRC"
 
-# ── Step 5: Print full alias reference ───────────────────────────────────────
+# ── Step 5: Confirmation table ───────────────────────────────────────────────
 
 echo ""
 echo "PACT — Setup Complete"
