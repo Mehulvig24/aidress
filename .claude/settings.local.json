@@ -17,7 +17,9 @@
       "Bash(curl -s http://localhost:8000/registry)",
       "Bash(kill %1)",
       "Bash(/Library/Frameworks/Python.framework/Versions/3.13/bin/uvicorn main:app --port 8001)",
-      "Bash(open *)"
+      "Bash(open *)",
+      "Bash(chmod +x *)",
+      "Bash(bash -n /Users/mehul-personal/Desktop/pact-protocol/setup.sh)"
     ]
   }
 }
