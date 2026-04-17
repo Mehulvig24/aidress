@@ -27,7 +27,10 @@ add_alias() {
     if grep -q "alias ${name}=" "$ZSHRC" 2>/dev/null; then
         echo "  [skip]  $name already exists"
     else
-        echo "alias ${name}='${cmd}'" >> "$ZSHRC"
+        # Escape any bare " in cmd to \" so the alias is valid inside double quotes.
+        # printf is used instead of echo to avoid interpreting backslash sequences.
+        local escaped_cmd="${cmd//\"/\\\"}"
+        printf 'alias %s="%s"\n' "$name" "$escaped_cmd" >> "$ZSHRC"
         echo "  [added] $name"
     fi
 }
