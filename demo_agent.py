@@ -9,7 +9,7 @@ import urllib.request
 import urllib.error
 import json
 
-PACT_BASE_URL = "https://aidress.onrender.com"
+PACT_BASE_URL = "https://api.aidress.ai"
 
 
 # ── Core integration function ────────────────────────────────────────────────
