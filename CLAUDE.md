@@ -1,7 +1,7 @@
-# PACT — Claude Code Session Context
+# Aidress — Claude Code Session Context
 
-## What is PACT
-Protocol for Autonomous Coordination and Trust. A SWIFT-like coordination network for autonomous AI agents. Allows agents to verify unknown counterparts before transacting. Built by Mehul Vig and Kabir Sadani. Pre-product, resource-constrained, no full-time engineers.
+## What is Aidress
+AI Discovery, Reputation, Exchange & Settlement System. A SWIFT-like coordination network for autonomous AI agents. Allows agents to verify unknown counterparts before transacting. Built by Mehul Vig and Kabir Sadani. Pre-product, resource-constrained, no full-time engineers.
 
 ## The Problem
 AI agents cannot transact autonomously with unknown counterparts. No universal identity layer, discovery mechanism, or trust standard exists. Validated across 23 runs on 8 tools — zero autonomous completions.
@@ -10,15 +10,15 @@ AI agents cannot transact autonomously with unknown counterparts. No universal i
 Identity, Capability, Terms, Trust, Routing/Settlement. Currently built: Trust, Capability, Routing.
 
 ## Live URL
-https://pact-protocol.onrender.com
+https://aidress.onrender.com
 
 ## File Structure
 - main.py — FastAPI app, all endpoints
 - database.py — SQLite setup, all DB operations
 - models.py — Pydantic request/response models
 - seed.py — populates DB with 10 logistics agents
-- pact_sdk.py — one-line Python SDK
-- demo_agent.py — simulates agent calling PACT, shows proceed/caution/abort
+- aidress_sdk.py — one-line Python SDK
+- demo_agent.py — simulates agent calling Aidress, shows proceed/caution/abort
 - test_ratings.py — tests anti-gaming rating rules
 - index.html — visual demo UI
 - requirements.txt — dependencies
@@ -63,7 +63,7 @@ Key agents: agent_freightbot_01 (88), agent_cargovfy_01 (100), agent_shipchain_0
 ## Testing Rules — mandatory before marking anything done
 1. Test every endpoint change with curl against localhost
 2. Test every database change with a direct SQLite query
-3. Run python3 pact_sdk.py after any SDK change
+3. Run python3 aidress_sdk.py after any SDK change
 4. Run python3 demo_agent.py after any change to core verify/match logic
 5. Run python3 test_ratings.py after any change to rating logic
 6. NEVER mark a task complete without pasting actual test output
@@ -85,10 +85,10 @@ All phases complete and live on Render. Next priorities:
 4. Properly hosted UI
 
 ## Target Users
-Developers building agents on Replit, Cursor, Lovable. First vertical: logistics. Wedge: trust verification as standalone API. First design partner recruitment via developer communities describing the exact failure PACT solves.
+Developers building agents on Replit, Cursor, Lovable. First vertical: logistics. Wedge: trust verification as standalone API. First design partner recruitment via developer communities describing the exact failure Aidress solves.
 
 ## Architecture Notes
-- Google A2A is complementary not competitive — A2A handles agent messaging, PACT handles the coordination stack above it
+- Google A2A is complementary not competitive — A2A handles agent messaging, Aidress handles the coordination stack above it
 - SWIFT analogy is central to positioning
 - Do not over-engineer — one working design partner beats full protocol design
 - Supabase migration path: swap SQLite connection in database.py for asyncpg/psycopg2, update Render environment variables, run schema migration — everything else stays identical

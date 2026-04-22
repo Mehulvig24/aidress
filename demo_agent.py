@@ -1,4 +1,4 @@
-# demo_agent.py — Simulates a real AI agent using PACT to vet counterparts before transacting.
+# demo_agent.py — Simulates a real AI agent using Aidress to vet counterparts before transacting.
 #
 # The core idea: before an agent does any work with an unknown counterpart,
 # it calls pact_verify() to get a trust score. One function call. That's it.
@@ -9,7 +9,7 @@ import urllib.request
 import urllib.error
 import json
 
-PACT_BASE_URL = "https://pact-protocol.onrender.com"
+PACT_BASE_URL = "https://aidress.onrender.com"
 
 
 # ── Core integration function ────────────────────────────────────────────────
@@ -31,7 +31,7 @@ def pact_verify(agent_id: str) -> dict:
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.URLError as e:
         # If PACT itself is unreachable, fail safe — treat as untrusted
-        print(f"  [!] Could not reach PACT server: {e.reason}")
+        print(f"  [!] Could not reach Aidress server: {e.reason}")
         return {
             "agent_id":    agent_id,
             "verified":    False,
@@ -60,7 +60,7 @@ def simulate_transaction(agent_id: str, task: str) -> dict:
     flags     = trust.get("flags", [])
     org_name  = trust.get("org_name") or "Unknown organisation"
 
-    print(f"  PACT response:")
+    print(f"  Aidress response:")
     print(f"    Organisation : {org_name}")
     print(f"    Verified     : {'Yes' if verified else 'No'}")
     print(f"    Trust score  : {score}/100")
@@ -136,7 +136,7 @@ def main():
     """Run four scenarios that illustrate every trust outcome PACT can return."""
 
     print("\n" + "═" * 60)
-    print("  PACT DEMO — Protocol for Autonomous Coordination and Trust")
+    print("  Aidress DEMO — AI Discovery, Reputation, Exchange & Settlement System")
     print("  Simulating an AI agent vetting counterparts before work")
     print("═" * 60)
 
@@ -175,7 +175,7 @@ def main():
     print("\n" + "═" * 60)
     print("  Demo complete.")
     print()
-    print("  This is what PACT adds to any AI agent:")
+    print("  This is what Aidress adds to any AI agent:")
     print("    trust = pact_verify(counterpart_agent_id)")
     print()
     print("  One call. Verified identity. Informed decision.")

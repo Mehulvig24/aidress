@@ -1,6 +1,6 @@
 # test_ratings.py — Integration tests for the POST /rate endpoint
 #
-# Tests all four anti-gaming rules against the live PACT API on Render.
+# Tests all four anti-gaming rules against the live Aidress API on Render.
 # No external libraries needed — uses only Python's built-in urllib.
 #
 # Run with:  python test_ratings.py
@@ -10,7 +10,7 @@ import urllib.error
 import json
 import ssl
 
-BASE_URL = "https://pact-protocol.onrender.com"
+BASE_URL = "https://aidress.onrender.com"
 
 # macOS Python 3.x does not use the system certificate store by default.
 # This context skips verification for test purposes — fine for a local test
@@ -126,7 +126,7 @@ def _check_low_trust_or_note(status, body):
 def main():
     print()
     print("═" * 60)
-    print("  PACT — POST /rate Anti-Gaming Rule Tests")
+    print("  Aidress — POST /rate Anti-Gaming Rule Tests")
     print(f"  Target: {BASE_URL}")
     print("═" * 60)
     print()

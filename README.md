@@ -1,8 +1,8 @@
-# PACT — Protocol for Autonomous Coordination and Trust
+# Aidress — AI Discovery, Reputation, Exchange & Settlement System
 
 A trust and identity registry for autonomous AI agents, modelled after how SWIFT works for banks.
 
-When **Agent A** is about to transact with **Agent B** it has never met, it calls PACT's `/verify` endpoint. PACT looks up Agent B and returns a **TrustObject** — a verified score, flags, and identity metadata — so Agent A can decide whether to proceed.
+When **Agent A** is about to transact with **Agent B** it has never met, it calls Aidress's `/verify` endpoint. Aidress looks up Agent B and returns a **TrustObject** — a verified score, flags, and identity metadata — so Agent A can decide whether to proceed.
 
 ---
 
@@ -36,7 +36,7 @@ Interactive docs (Swagger UI): **http://localhost:8000/docs**
 
 ## Endpoints
 
-### `POST /verify` — Look up an agent before transacting
+### `POST /verify` — Look up an agent before transacting with it
 
 ```bash
 curl -s -X POST http://localhost:8000/verify \
@@ -66,7 +66,7 @@ curl -s -X POST http://localhost:8000/register \
   }' | python -m json.tool
 ```
 
-Returns `201 Created` with `status: "pending_review"` and a starting `trust_score` of 40.  
+Returns `201 Created` with `status: "pending_review"` and a starting `trust_score` of 40.
 Returns `409 Conflict` if the `agent_id` or `org_domain` is already taken.
 
 ---
@@ -93,6 +93,8 @@ curl -s -X POST http://localhost:8000/rate \
 | D | An agent cannot rate itself |
 
 The rated agent's `trust_score` is recalculated as a weighted average of all received ratings (1–5 → 0–100 scale), with no single org contributing more than 20% of the total weight.
+
+---
 
 ---
 
@@ -153,8 +155,8 @@ pact-protocol/
   database.py      # SQLite setup and every DB operation
   models.py        # Pydantic request/response schemas
   seed.py          # Seed script for the logistics test dataset
-  pact_sdk.py      # Standalone Python SDK (no external dependencies)
-  demo_agent.py    # Simulates an agent using PACT to vet counterparts
+  aidress_sdk.py   # Standalone Python SDK (no external dependencies)
+  demo_agent.py    # Simulates an agent using Aidress to vet counterparts
   test_ratings.py  # Integration tests for the POST /rate anti-gaming rules
   index.html       # Single-file demo UI
   Procfile         # Render deployment config

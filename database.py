@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timezone
 from typing import Optional
 
-DB_PATH = "pact.db"
+DB_PATH = "aidress.db"
 
 
 # ── Connection helper ────────────────────────────────────────────────────────

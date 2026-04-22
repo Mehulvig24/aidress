@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PACT — Protocol for Autonomous Coordination and Trust</title>
+  <title>Aidress — AI Discovery, Reputation, Exchange &amp; Settlement System</title>
   <style>
     /* ── Design tokens ───────────────────────────────────────────────────── */
     :root {
@@ -558,8 +558,8 @@
 <header>
   <div class="header-inner">
     <div class="wordmark">
-      <div class="logo-box">P</div>
-      <div class="logo-label">PACT</div>
+      <div class="logo-box">A</div>
+      <div class="logo-label">AIDRESS</div>
     </div>
     <h1 class="header-title">Trust infrastructure for autonomous AI agents</h1>
     <p class="header-sub">Verify any agent before your AI transacts with it</p>
@@ -643,14 +643,14 @@
 </main>
 
 <footer>
-  <code>PACT</code> — Protocol for Autonomous Coordination and Trust &nbsp;·&nbsp; Trust registry for AI agents
+  <code>Aidress</code> — AI Discovery, Reputation, Exchange &amp; Settlement System &nbsp;·&nbsp; Trust registry for AI agents
 </footer>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════════════════════════════════ */
-const BASE = 'https://pact-protocol.onrender.com';
+const BASE = 'https://aidress.onrender.com';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    HELPERS
@@ -677,7 +677,7 @@ function showLoader(el, msg) {
 function decision(score, flags = []) {
   if (flags.includes('unregistered') || score < 40) {
     const why = flags.includes('unregistered')
-      ? 'Agent not in PACT registry'
+      ? 'Agent not in Aidress registry'
       : `Trust score ${score}/100 — below minimum threshold`;
     return { cls: 'abort', label: '✗  ABORT', reason: why };
   }
@@ -704,7 +704,7 @@ async function callPACT(path, body, statusEl, maxRetries = 12) {
 
       // Render free tier returns 503 while spinning up — keep retrying
       if (res.status === 503 && attempt < maxRetries) {
-        showLoader(statusEl, `PACT server warming up, please wait… (${attempt}/${maxRetries - 1})`);
+        showLoader(statusEl, `Aidress server warming up, please wait… (${attempt}/${maxRetries - 1})`);
         await sleep(5000);
         continue;
       }
@@ -719,10 +719,10 @@ async function callPACT(path, body, statusEl, maxRetries = 12) {
     } catch (err) {
       // Network / fetch error
       if (attempt < maxRetries) {
-        showLoader(statusEl, `Connecting to PACT… (${attempt}/${maxRetries - 1})`);
+        showLoader(statusEl, `Connecting to Aidress… (${attempt}/${maxRetries - 1})`);
         await sleep(5000);
       } else {
-        return { ok: false, status: 0, data: { detail: 'Could not reach PACT server.' } };
+        return { ok: false, status: 0, data: { detail: 'Could not reach Aidress server.' } };
       }
     }
   }
@@ -884,7 +884,7 @@ async function doVerify() {
   const el  = document.getElementById('verify-result');
   const btn = document.getElementById('verify-btn');
   btn.disabled = true;
-  showLoader(el, 'Querying PACT registry…');
+  showLoader(el, 'Querying Aidress registry…');
 
   const { ok, status, data } = await callPACT('/verify', { agent_id: id }, el);
 
@@ -941,7 +941,7 @@ async function doRegister() {
   }
 
   btn.disabled = true;
-  showLoader(el, 'Submitting registration to PACT…');
+  showLoader(el, 'Submitting registration to Aidress…');
 
   const { ok, status, data } = await callPACT('/register', {
     agent_id:      agentId,

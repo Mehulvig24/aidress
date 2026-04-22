@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(
-    title="PACT — Protocol for Autonomous Coordination and Trust",
+    title="Aidress — AI Discovery, Reputation, Exchange & Settlement System",
     description=(
         "A trust and identity registry for autonomous AI agents. "
         "Agents call /verify before transacting with an unknown counterpart."

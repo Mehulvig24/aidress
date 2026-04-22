@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# setup.sh — One-command installer for PACT demo aliases on macOS
+# setup.sh — One-command installer for Aidress demo aliases on macOS
 #
-# Writes curl shortcuts for every PACT endpoint into ~/.zshrc.
+# Writes curl shortcuts for every Aidress endpoint into ~/.zshrc.
 #
 # Idempotent: strips all existing pact- lines before re-writing, so running
 # the script twice produces a clean, duplicate-free result.
@@ -20,10 +20,10 @@
 set -euo pipefail
 
 ZSHRC="$HOME/.zshrc"
-BASE="https://pact-protocol.onrender.com"
+BASE="https://aidress.onrender.com"
 
 echo ""
-echo "PACT — Installer"
+echo "Aidress — Installer"
 echo "══════════════════════════════════════════════"
 echo ""
 
@@ -44,44 +44,44 @@ echo "Writing aliases to $ZSHRC ..."
 
 cat >> "$ZSHRC" << 'EOF'
 
-# ── PACT aliases ─────────────────────────────────────────────────────────────
+# ── Aidress aliases ──────────────────────────────────────────────────────────
 
 # Wake + Network
-alias pact-wake='curl -s https://pact-protocol.onrender.com/registry'
-alias pact-registry='curl -s https://pact-protocol.onrender.com/registry | python3 -m json.tool'
+alias pact-wake='curl -s https://aidress.onrender.com/registry'
+alias pact-registry='curl -s https://aidress.onrender.com/registry | python3 -m json.tool'
 
 # Verify
-alias pact-verify-good='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "agent_freightbot_01"}'\'' | python3 -m json.tool'
-alias pact-verify-flagged='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "agent_riskroute_01"}'\'' | python3 -m json.tool'
-alias pact-verify-unknown='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "unknown-agent-999"}'\'' | python3 -m json.tool'
-alias pact-verify-registered='curl -s -X POST https://pact-protocol.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "demo-agent-001"}'\'' | python3 -m json.tool'
+alias pact-verify-good='curl -s -X POST https://aidress.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "agent_freightbot_01"}'\'' | python3 -m json.tool'
+alias pact-verify-flagged='curl -s -X POST https://aidress.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "agent_riskroute_01"}'\'' | python3 -m json.tool'
+alias pact-verify-unknown='curl -s -X POST https://aidress.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "unknown-agent-999"}'\'' | python3 -m json.tool'
+alias pact-verify-registered='curl -s -X POST https://aidress.onrender.com/verify -H "Content-Type: application/json" -d '\''{"agent_id": "demo-agent-001"}'\'' | python3 -m json.tool'
 
 # Agent Profile
-alias pact-agent-freightbot='curl -s https://pact-protocol.onrender.com/agent/agent_freightbot_01 | python3 -m json.tool'
-alias pact-agent-shipchain='curl -s https://pact-protocol.onrender.com/agent/agent_shipchain_01 | python3 -m json.tool'
-alias pact-agent-cargovfy='curl -s https://pact-protocol.onrender.com/agent/agent_cargovfy_01 | python3 -m json.tool'
+alias pact-agent-freightbot='curl -s https://aidress.onrender.com/agent/agent_freightbot_01 | python3 -m json.tool'
+alias pact-agent-shipchain='curl -s https://aidress.onrender.com/agent/agent_shipchain_01 | python3 -m json.tool'
+alias pact-agent-cargovfy='curl -s https://aidress.onrender.com/agent/agent_cargovfy_01 | python3 -m json.tool'
 
 # Discovery
-alias pact-match-freight='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["freight_booking", "customs_clearance"]}'\'' | python3 -m json.tool'
-alias pact-match-routing='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["route_optimisation", "last_mile_delivery"]}'\'' | python3 -m json.tool'
-alias pact-match-customs='curl -s -X POST https://pact-protocol.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["customs_clearance", "compliance_check"]}'\'' | python3 -m json.tool'
+alias pact-match-freight='curl -s -X POST https://aidress.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["freight_booking", "customs_clearance"]}'\'' | python3 -m json.tool'
+alias pact-match-routing='curl -s -X POST https://aidress.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["route_optimisation", "last_mile_delivery"]}'\'' | python3 -m json.tool'
+alias pact-match-customs='curl -s -X POST https://aidress.onrender.com/match -H "Content-Type: application/json" -d '\''{"required_capabilities": ["customs_clearance", "compliance_check"]}'\'' | python3 -m json.tool'
 
 # Register
-alias pact-register='curl -s -X POST https://pact-protocol.onrender.com/register -H "Content-Type: application/json" -d '\''{"agent_id": "demo-agent-001", "org_name": "Demo Corp", "org_domain": "democorp.com", "contact_email": "demo@democorp.com"}'\'' | python3 -m json.tool'
+alias pact-register='curl -s -X POST https://aidress.onrender.com/register -H "Content-Type: application/json" -d '\''{"agent_id": "demo-agent-001", "org_name": "Demo Corp", "org_domain": "democorp.com", "contact_email": "demo@democorp.com"}'\'' | python3 -m json.tool'
 
 # Rating — valid
-alias pact-rate-valid='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-001"}'\'' | python3 -m json.tool'
+alias pact-rate-valid='curl -s -X POST https://aidress.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-001"}'\'' | python3 -m json.tool'
 
 # Rating — anti-gaming (each returns HTTP 403)
-alias pact-rate-self='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_freightbot_01", "score": 5, "transaction_id": "txn-demo-002"}'\'' | python3 -m json.tool'
-alias pact-rate-dupe='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-001"}'\'' | python3 -m json.tool'
-alias pact-rate-blocked='curl -s -X POST https://pact-protocol.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_riskroute_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-003"}'\'' | python3 -m json.tool'
+alias pact-rate-self='curl -s -X POST https://aidress.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_freightbot_01", "score": 5, "transaction_id": "txn-demo-002"}'\'' | python3 -m json.tool'
+alias pact-rate-dupe='curl -s -X POST https://aidress.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_freightbot_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-001"}'\'' | python3 -m json.tool'
+alias pact-rate-blocked='curl -s -X POST https://aidress.onrender.com/rate -H "Content-Type: application/json" -d '\''{"rater_agent_id": "agent_riskroute_01", "rated_agent_id": "agent_shipchain_01", "score": 5, "transaction_id": "txn-demo-003"}'\'' | python3 -m json.tool'
 
 # Local dev
 alias pact-demo='cd ~/Desktop/pact-protocol && python3 demo_agent.py'
 alias pact-server='cd ~/Desktop/pact-protocol && python3 -m uvicorn main:app --reload --port 8001'
 alias pact-push='git add . && git commit -m "update" && git push'
-alias pact-sdk='cd ~/Desktop/pact-protocol && python3 pact_sdk.py'
+alias pact-sdk='cd ~/Desktop/pact-protocol && python3 aidress_sdk.py'
 
 # ─────────────────────────────────────────────────────────────────────────────
 EOF
@@ -107,7 +107,7 @@ grep "pact-verify-good" "$ZSHRC"
 # ── Step 5: Confirmation table ───────────────────────────────────────────────
 
 echo ""
-echo "PACT — Setup Complete"
+echo "Aidress — Setup Complete"
 echo "══════════════════════════════════════════════"
 echo ""
 echo "NETWORK"
@@ -143,10 +143,10 @@ echo "LOCAL DEV"
 echo "  pact-demo              Run demo_agent.py against live server"
 echo "  pact-server            Start local API server on port 8001"
 echo "  pact-push              git add + commit + push from current directory"
-echo "  pact-sdk               Run pact_sdk.py demo"
+echo "  pact-sdk               Run aidress_sdk.py demo"
 echo ""
 echo "══════════════════════════════════════════════"
-echo "PACT is live at $BASE"
+echo "Aidress is live at $BASE"
 echo "Start with: pact-wake → pact-registry → pact-verify-good"
 echo "══════════════════════════════════════════════"
 echo ""
