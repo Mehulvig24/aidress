@@ -17,6 +17,7 @@ https://aidress.onrender.com
 - database.py — SQLite setup, all DB operations
 - models.py — Pydantic request/response models
 - seed.py — populates DB with 10 logistics agents
+- taxonomy.py — capability taxonomy, synonym map, and fuzzy resolution helper
 - aidress_sdk.py — one-line Python SDK
 - demo_agent.py — simulates agent calling Aidress, shows proceed/caution/abort
 - test_ratings.py — tests anti-gaming rating rules

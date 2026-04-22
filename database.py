@@ -125,21 +125,39 @@ def get_all_verified_agents() -> list[dict]:
 
 def get_agents_with_capabilities(required: list[str]) -> list[dict]:
     """
-    Return verified agents (trust_score >= 50) whose capabilities include
-    every capability in the required list, ranked by trust_score descending.
-    Capability matching is done in Python so the logic stays readable.
+    Return verified agents (trust_score >= 50) whose capabilities overlap with
+    the required list, ranked by match_score desc then trust_score desc.
+
+    Fuzzy matching pipeline:
+      1. Each input string is normalised via taxonomy.normalize_capability()
+         (synonym lookup → canonical check → substring match).
+      2. The union of all resolved tags forms the target set.
+      3. Each candidate agent is scored by how many target tags it has.
+      4. Agents with at least one match are returned; zero-match agents excluded.
     """
+    from taxonomy import normalize_capability
+
     candidates = get_all_verified_agents()
 
-    required_set = set(required)
-    matches = [
-        a for a in candidates
-        if required_set.issubset(set(a.get("capabilities", [])))
-    ]
+    # Resolve every input term to canonical tags (one term may resolve to many)
+    resolved_tags: set[str] = set()
+    for cap in required:
+        resolved_tags.update(normalize_capability(cap))
 
-    # Highest trust first so the caller gets the best options at the top
-    matches.sort(key=lambda a: a["trust_score"], reverse=True)
-    return matches
+    if not resolved_tags:
+        return []
+
+    results = []
+    for agent in candidates:
+        agent_caps = set(agent.get("capabilities", []))
+        matched = resolved_tags & agent_caps
+        if matched:
+            agent["match_score"] = len(matched)
+            results.append(agent)
+
+    # Best coverage first, then highest trust as tiebreaker
+    results.sort(key=lambda a: (a["match_score"], a["trust_score"]), reverse=True)
+    return results
 
 
 def update_agent_trust_score(agent_id: str, new_score: int) -> None:

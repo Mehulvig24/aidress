@@ -53,6 +53,7 @@ class TrustObject(BaseModel):
     transaction_count: int            = 0
     flags:             list[str]      = []
     capabilities:      list[str]      = []   # what this agent can do
+    match_score:       int            = 0    # number of requested capabilities matched (set by /match)
     registered_at:     Optional[datetime] = None
     last_active:       Optional[datetime] = None
     routing:           Optional[RoutingBlock] = None  # connection and payment details

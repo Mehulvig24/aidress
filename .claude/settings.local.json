@@ -19,7 +19,13 @@
       "Bash(/Library/Frameworks/Python.framework/Versions/3.13/bin/uvicorn main:app --port 8001)",
       "Bash(open *)",
       "Bash(chmod +x *)",
-      "Bash(bash -n /Users/mehul-personal/Desktop/pact-protocol/setup.sh)"
+      "Bash(bash -n /Users/mehul-personal/Desktop/pact-protocol/setup.sh)",
+      "Bash(curl -s -X POST http://localhost:8001/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"freight\"]}')",
+      "Bash(curl -s -X POST http://localhost:8001/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"shipping\"]}')",
+      "Bash(curl -s -X POST http://localhost:8001/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"freight\", \"customs\"]}')",
+      "Bash(curl -s -X POST http://localhost:8001/match -H 'Content-Type: application/json' -d '{\"required_capabilities\": [\"freight_booking\"]}')",
+      "Bash(curl -s -X POST http://localhost:8001/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"agent_freightbot_01\"}')",
+      "Bash(kill 55914)"
     ]
   }
 }

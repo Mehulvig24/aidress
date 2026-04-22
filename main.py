@@ -214,9 +214,10 @@ def get_registry():
 def match_agents(body: MatchRequest):
     """
     Capability discovery endpoint — describe what you need, get back who can do it.
-    Returns verified agents (trust_score >= 50) that have ALL the required capabilities,
-    ranked by trust_score descending so the most trusted option is always first.
-    Returns an empty list if no agents match.
+    Supports fuzzy matching: input strings are resolved through a synonym map and
+    substring matching (e.g. "freight" matches "freight_booking", "shipping" matches
+    "freight_booking"). Returns verified agents (trust_score >= 50) with at least one
+    matching capability, ranked by match_score desc then trust_score desc.
     """
     matches = db.get_agents_with_capabilities(body.required_capabilities)
     return [TrustObject(**a) for a in matches]
