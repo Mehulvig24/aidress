@@ -1,5 +1,6 @@
 # main.py — PACT Protocol API: all five endpoints wired up with FastAPI
 
+import sqlite3
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -125,6 +126,13 @@ def rate_agent(body: RateRequest):
     if rated is None:
         raise HTTPException(status_code=404, detail=f"Rated agent '{body.rated_agent_id}' not found.")
 
+    # Rule D — an agent cannot rate itself
+    if body.rater_agent_id == body.rated_agent_id:
+        raise HTTPException(
+            status_code=403,
+            detail="An agent cannot submit a rating for itself.",
+        )
+
     # Rule A — rater must have earned enough trust to have a credible voice
     if rater["trust_score"] < 50:
         raise HTTPException(
@@ -152,20 +160,20 @@ def rate_agent(body: RateRequest):
             detail=f"Transaction '{body.transaction_id}' has already been used for a rating.",
         )
 
-    # Rule D — an agent cannot rate itself
-    if body.rater_agent_id == body.rated_agent_id:
+    # Persist the rating — catch duplicate transaction_id from UNIQUE constraint
+    # race condition (two concurrent requests passing the check above)
+    try:
+        db.create_rating(
+            rater_agent_id=body.rater_agent_id,
+            rated_agent_id=body.rated_agent_id,
+            score=body.score,
+            transaction_id=body.transaction_id,
+        )
+    except sqlite3.IntegrityError:
         raise HTTPException(
             status_code=403,
-            detail="An agent cannot submit a rating for itself.",
+            detail="Transaction has already been used for a rating.",
         )
-
-    # Persist the rating first so the score calculation picks it up
-    db.create_rating(
-        rater_agent_id=body.rater_agent_id,
-        rated_agent_id=body.rated_agent_id,
-        score=body.score,
-        transaction_id=body.transaction_id,
-    )
 
     # Recalculate trust score with the 20%-per-domain cap applied
     new_score = db.compute_new_trust_score(

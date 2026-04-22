@@ -1,6 +1,6 @@
 # models.py — Pydantic schemas for all request bodies and response shapes
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
 from typing import Optional
 from datetime import datetime
 
@@ -9,28 +9,28 @@ from datetime import datetime
 
 class VerifyRequest(BaseModel):
     # The ID of the agent being looked up
-    agent_id: str
+    agent_id: str = Field(..., max_length=128)
 
 
 class RegisterRequest(BaseModel):
     # All fields required to onboard a new agent
-    agent_id:      str
-    org_name:      str
-    org_domain:    str
-    contact_email: str
+    agent_id:      str = Field(..., max_length=128)
+    org_name:      str = Field(..., max_length=256)
+    org_domain:    str = Field(..., max_length=253)
+    contact_email: str = Field(..., max_length=254)
 
 
 class RateRequest(BaseModel):
     # A trust rating submitted after a transaction between two agents
-    rater_agent_id: str
-    rated_agent_id: str
-    score:          int  = Field(..., ge=1, le=5, description="Rating from 1 (terrible) to 5 (excellent)")
-    transaction_id: str
+    rater_agent_id: str = Field(..., max_length=128)
+    rated_agent_id: str = Field(..., max_length=128)
+    score:          int = Field(..., ge=1, le=5, description="Rating from 1 (terrible) to 5 (excellent)")
+    transaction_id: str = Field(..., max_length=256)
 
 
 class MatchRequest(BaseModel):
     # Capability query — describe what you need and PACT finds who can do it
-    required_capabilities: list[str] = Field(..., min_length=1)
+    required_capabilities: list[constr(max_length=50)] = Field(..., min_length=1, max_length=20)
 
 
 # ── Response shapes ─────────────────────────────────────────────────────────
