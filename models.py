@@ -18,6 +18,12 @@ class RegisterRequest(BaseModel):
     org_name:      str = Field(..., max_length=256)
     org_domain:    str = Field(..., max_length=253)
     contact_email: str = Field(..., max_length=254)
+    # Optional routing and capability fields — can be supplied at registration time
+    capabilities:          list[constr(max_length=50)] = []
+    endpoint_url:          Optional[str] = None
+    protocol:              Optional[str] = None
+    accepted_terms_format: Optional[str] = None
+    settlement_rail:       Optional[str] = None
 
 
 class RateRequest(BaseModel):

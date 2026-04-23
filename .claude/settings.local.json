@@ -28,7 +28,11 @@
       "Bash(kill 55914)",
       "Bash(curl -s -X POST http://localhost:8001/verify -H \"Content-Type: application/json\" -d '{\"agent_id\":\"agent_freightbot_01\"}')",
       "Bash(curl -s -X POST http://localhost:8001/match -H \"Content-Type: application/json\" -d '{\"required_capabilities\":[\"freight\"]}')",
-      "Bash(curl -s http://localhost:8001/registry)"
+      "Bash(curl -s http://localhost:8001/registry)",
+      "Bash(curl -s -X POST http://localhost:8001/register -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(curl -s -X POST http://localhost:8001/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"test-caps-002\"}')",
+      "Bash(curl -s -X POST http://localhost:8001/register -H 'Content-Type: application/json' -d '{\"agent_id\":\"test-minimal-01\",\"org_name\":\"Minimal Corp\",\"org_domain\":\"minimal01.com\",\"contact_email\":\"a@minimal01.com\"}')",
+      "Bash(curl -s -X POST http://localhost:8001/verify -H 'Content-Type: application/json' -d '{\"agent_id\":\"test-minimal-01\"}')"
     ]
   }
 }

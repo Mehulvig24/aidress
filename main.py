@@ -97,6 +97,11 @@ def register_agent(body: RegisterRequest):
         org_name=body.org_name,
         org_domain=body.org_domain,
         contact_email=body.contact_email,
+        capabilities=body.capabilities,
+        endpoint_url=body.endpoint_url,
+        protocol=body.protocol,
+        accepted_terms_format=body.accepted_terms_format,
+        settlement_rail=body.settlement_rail,
     )
 
     return RegisterResponse(

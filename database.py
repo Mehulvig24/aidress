@@ -95,8 +95,17 @@ def create_agent(
     org_name: str,
     org_domain: str,
     contact_email: str,
+    capabilities:          list  = None,
+    endpoint_url:          str   = None,
+    protocol:              str   = None,
+    accepted_terms_format: str   = None,
+    settlement_rail:       str   = None,
 ) -> dict:
-    """Insert a new agent with default trust values and return the created record."""
+    """Insert a new agent with default trust values and return the created record.
+
+    Routing and capability fields are optional — agents can supply them at
+    registration time or have them added later via admin tooling.
+    """
     now = _now()
     conn = get_connection()
     with conn:
@@ -105,10 +114,16 @@ def create_agent(
             INSERT INTO agents
                 (agent_id, org_name, org_domain, contact_email,
                  verified, trust_score, transaction_count, flags,
-                 registered_at, last_active)
-            VALUES (?, ?, ?, ?, 0, 40, 0, '[]', ?, ?)
+                 registered_at, last_active,
+                 capabilities, endpoint_url, protocol,
+                 accepted_terms_format, settlement_rail)
+            VALUES (?, ?, ?, ?, 0, 40, 0, '[]', ?, ?, ?, ?, ?, ?, ?)
             """,
-            (agent_id, org_name, org_domain, contact_email, now, now),
+            (
+                agent_id, org_name, org_domain, contact_email, now, now,
+                json.dumps(capabilities or []),
+                endpoint_url, protocol, accepted_terms_format, settlement_rail,
+            ),
         )
     conn.close()
     return get_agent(agent_id)
