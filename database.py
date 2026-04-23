@@ -176,6 +176,17 @@ def get_agents_with_capabilities(required: list[str]) -> list[dict]:
     return results
 
 
+def set_agent_verified(agent_id: str) -> None:
+    """Mark an agent as verified (verified = 1) and update last_active timestamp."""
+    conn = get_connection()
+    with conn:
+        conn.execute(
+            "UPDATE agents SET verified = 1, last_active = ? WHERE agent_id = ?",
+            (_now(), agent_id),
+        )
+    conn.close()
+
+
 def update_agent_trust_score(agent_id: str, new_score: int) -> None:
     """Overwrite the trust_score field for a given agent."""
     conn = get_connection()

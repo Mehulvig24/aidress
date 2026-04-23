@@ -13,6 +13,7 @@ from models import (
     RegisterRequest,
     RateRequest,
     MatchRequest,
+    AdminVerifyRequest,
     TrustObject,
     RegisterResponse,
     AgentProfile,
@@ -234,3 +235,32 @@ def match_agents(body: MatchRequest):
     """
     matches = db.get_agents_with_capabilities(body.required_capabilities)
     return [TrustObject(**a) for a in matches]
+
+
+# ── 7. POST /admin/verify-agent ───────────────────────────────────────────────
+
+# Hardcoded admin key — intentional for current pre-auth stage.
+# Replace with environment variable before opening to external partners.
+_ADMIN_KEY = "aidress-admin-2024"
+
+
+@app.post("/admin/verify-agent", response_model=TrustObject, summary="Mark an agent as verified (internal use only)")
+def admin_verify_agent(body: AdminVerifyRequest):
+    """
+    Internal admin endpoint — sets an agent's verified flag to true.
+
+    This endpoint is for Aidress operators only. It is not part of the public API
+    and must not be exposed to or documented for external callers.
+    The admin_key check is a lightweight guard for the pre-auth stage of development.
+    """
+    if body.admin_key != _ADMIN_KEY:
+        raise HTTPException(status_code=403, detail="Invalid admin key.")
+
+    agent = db.get_agent(body.agent_id)
+    if agent is None:
+        raise HTTPException(status_code=404, detail=f"Agent '{body.agent_id}' not found.")
+
+    db.set_agent_verified(body.agent_id)
+
+    updated = db.get_agent(body.agent_id)
+    return TrustObject(**updated)

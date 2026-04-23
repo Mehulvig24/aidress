@@ -39,6 +39,12 @@ class MatchRequest(BaseModel):
     required_capabilities: list[constr(max_length=50)] = Field(..., min_length=1, max_length=20)
 
 
+class AdminVerifyRequest(BaseModel):
+    # Internal-use request to mark an agent as verified
+    agent_id:  str
+    admin_key: str
+
+
 # ── Response shapes ─────────────────────────────────────────────────────────
 
 class RoutingBlock(BaseModel):

@@ -32,7 +32,11 @@
       "Bash(curl -s -X POST http://localhost:8001/register -H 'Content-Type: application/json' -d '{ *)",
       "Bash(curl -s -X POST http://localhost:8001/verify -H 'Content-Type: application/json' -d '{\"agent_id\": \"test-caps-002\"}')",
       "Bash(curl -s -X POST http://localhost:8001/register -H 'Content-Type: application/json' -d '{\"agent_id\":\"test-minimal-01\",\"org_name\":\"Minimal Corp\",\"org_domain\":\"minimal01.com\",\"contact_email\":\"a@minimal01.com\"}')",
-      "Bash(curl -s -X POST http://localhost:8001/verify -H 'Content-Type: application/json' -d '{\"agent_id\":\"test-minimal-01\"}')"
+      "Bash(curl -s -X POST http://localhost:8001/verify -H 'Content-Type: application/json' -d '{\"agent_id\":\"test-minimal-01\"}')",
+      "Bash(curl -s -X POST http://localhost:8001/register -H 'Content-Type: application/json' -d '{\"agent_id\":\"agent_clearpath_01\",\"org_name\":\"ClearPath Logistics\",\"org_domain\":\"clearpath.io\",\"contact_email\":\"ops@clearpath.io\"}')",
+      "Bash(curl -s -X POST http://localhost:8001/admin/verify-agent -H 'Content-Type: application/json' -d '{\"agent_id\":\"agent_clearpath_01\",\"admin_key\":\"wrongkey\"}')",
+      "Bash(curl -s -X POST http://localhost:8001/admin/verify-agent -H 'Content-Type: application/json' -d '{\"agent_id\":\"agent_clearpath_01\",\"admin_key\":\"aidress-admin-2024\"}')",
+      "Bash(curl -s -X POST http://localhost:8001/admin/verify-agent -H 'Content-Type: application/json' -d '{\"agent_id\":\"nonexistent-agent\",\"admin_key\":\"aidress-admin-2024\"}')"
     ]
   }
 }
