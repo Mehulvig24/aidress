@@ -28,8 +28,11 @@ echo ""
 # accumulate duplicates.
 
 echo "Removing existing pact- and aidress- aliases from $ZSHRC ..."
+# Delete the entire Aidress aliases block (from header comment to separator line)
+# so multi-line function bodies don't get left behind as orphaned executable lines.
+sed -i '' '/# ── Aidress aliases/,/# ───────/d' "$ZSHRC"
+# Also strip any legacy pact- lines from before the block-based cleanup was added
 sed -i '' '/pact-/d' "$ZSHRC"
-sed -i '' '/aidress-/d' "$ZSHRC"
 echo "  [done]"
 echo ""
 
