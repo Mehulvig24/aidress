@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # pact_sdk.py — Lightweight PACT client SDK
 #
 # Drop this single file into any Python project to add PACT trust verification.
