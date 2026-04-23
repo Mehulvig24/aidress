@@ -81,6 +81,13 @@ alias aidress-server='cd ~/Desktop/aidress && python3 -m uvicorn main:app --relo
 alias aidress-push='git add . && git commit -m "update" && git push'
 alias aidress-sdk='cd ~/Desktop/aidress && python3 aidress_sdk.py'
 
+# Admin
+aidress-verify-org() {
+  curl -s -X POST https://api.aidress.ai/admin/verify-agent \
+  -H "Content-Type: application/json" \
+  -d "{\"agent_id\": \"$1\", \"admin_key\": \"aidress-admin-2024\"}" | python3 -m json.tool
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 EOF
 
@@ -135,6 +142,9 @@ echo "  aidress-demo              Run demo_agent.py against live server"
 echo "  aidress-server            Start local API server on port 8001"
 echo "  aidress-push              git add + commit + push"
 echo "  aidress-sdk               Run aidress_sdk.py demo"
+echo ""
+echo "ADMIN"
+echo "  aidress-verify-org <agent_id>   Verify an agent's org (human approval step)"
 echo ""
 echo "══════════════════════════════════════════════"
 echo "Aidress is live at https://api.aidress.ai"
