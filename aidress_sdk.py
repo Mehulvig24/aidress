@@ -1,9 +1,11 @@
-# aidress_sdk.py — Lightweight Aidress client SDK
+from __future__ import annotations
+
+# pact_sdk.py — Lightweight PACT client SDK
 #
-# Drop this single file into any Python project to add Aidress trust verification.
+# Drop this single file into any Python project to add PACT trust verification.
 # The simplest possible integration is two lines:
 #
-#   from aidress_sdk import verify
+#   from pact_sdk import verify
 #   trust = verify("agent_id_here")
 #
 # No dependencies beyond Python's standard library.
@@ -24,7 +26,7 @@ _SSL_CTX.verify_mode    = ssl.CERT_NONE
 
 # The error object returned whenever PACT is unreachable or returns an
 # unexpected response — safe defaults so callers can always read trust_score.
-_UNREACHABLE = {"error": "Aidress unreachable", "verified": False, "trust_score": 0}
+_UNREACHABLE = {"error": "PACT unreachable", "verified": False, "trust_score": 0}
 
 
 def _parse_body(raw_bytes: bytes, status_code: int) -> dict:
@@ -54,7 +56,7 @@ class PACTClient:
         client = PACTClient("http://localhost:8001")   # points at local server
     """
 
-    def __init__(self, base_url: str = "https://aidress.onrender.com"):
+    def __init__(self, base_url: str = "https://pact-protocol.onrender.com"):
         # Strip trailing slash so callers don't need to worry about formatting
         self.base_url = base_url.rstrip("/")
 
@@ -81,7 +83,7 @@ class PACTClient:
                 body = _parse_body(e.read(), e.code)
                 # 503 means the host is still waking up — wait and retry
                 if e.code == 503 and attempt < _retries:
-                    print(f"  [Aidress] Server warming up, retrying ({attempt}/{_retries - 1})…")
+                    print(f"  [PACT] Server warming up, retrying ({attempt}/{_retries - 1})…")
                     time.sleep(5)
                     continue
                 return e.code, body
@@ -213,7 +215,7 @@ def verify(agent_id: str) -> dict:
     """
     Look up an agent's trust profile — the single line you add to your agent.
 
-    from aidress_sdk import verify
+    from pact_sdk import verify
     trust = verify("agent_id_here")
     """
     return _default_client.verify(agent_id)
@@ -223,7 +225,7 @@ def match(required_capabilities: list[str]) -> list[dict]:
     """
     Find trusted agents that can handle the capabilities you need.
 
-    from aidress_sdk import match
+    from pact_sdk import match
     agents = match(["freight_booking", "customs_clearance"])
     """
     return _default_client.match(required_capabilities)
@@ -238,7 +240,7 @@ def rate(
     """
     Submit a trust rating after a transaction.
 
-    from aidress_sdk import rate
+    from pact_sdk import rate
     rate("agent_a", "agent_b", score=5, transaction_id="txn-xyz")
     """
     return _default_client.rate(rater_agent_id, rated_agent_id, score, transaction_id)
@@ -253,7 +255,7 @@ def register(
     """
     Register a new agent with PACT.
 
-    from aidress_sdk import register
+    from pact_sdk import register
     register("my_agent_01", "Acme Corp", "acme.com", "bot@acme.com")
     """
     return _default_client.register(agent_id, org_name, org_domain, contact_email)
@@ -263,12 +265,12 @@ def register(
 
 if __name__ == "__main__":
     print("\n" + "═" * 55)
-    print("  Aidress SDK — integration demo")
+    print("  PACT SDK — integration demo")
     print("═" * 55)
 
     # ── verify() ─────────────────────────────────────────────────────────────
     print("\n── verify('agent_freightbot_01') ──")
-    print("  from aidress_sdk import verify")
+    print("  from pact_sdk import verify")
     print("  trust = verify('agent_freightbot_01')\n")
 
     trust = verify("agent_freightbot_01")
@@ -282,7 +284,7 @@ if __name__ == "__main__":
 
     # ── match() ───────────────────────────────────────────────────────────────
     print("\n── match(['freight_booking']) ──")
-    print("  from aidress_sdk import match")
+    print("  from pact_sdk import match")
     print("  agents = match(['freight_booking'])\n")
 
     agents = match(["freight_booking"])
@@ -298,5 +300,5 @@ if __name__ == "__main__":
         print("  No agents matched.")
 
     print("\n" + "═" * 55)
-    print("  Two imports, two calls. That's the full Aidress integration.")
+    print("  That's the full integration — two imports, two calls.")
     print("═" * 55 + "\n")
