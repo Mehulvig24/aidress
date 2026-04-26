@@ -330,7 +330,16 @@ def _row_to_agent_dict(row: sqlite3.Row) -> dict:
     d["capabilities"] = json.loads(d.get("capabilities") or "[]")
     d["verified"]     = bool(d["verified"])
 
-    raw_routing = d.get("routing")
-    d["routing"] = json.loads(raw_routing) if raw_routing else None
+    # Pull the four routing columns out of the flat row and bundle them into
+    # a nested dict so TrustObject can deserialise them as a RoutingBlock.
+    routing = {
+        "endpoint_url":          d.pop("endpoint_url",          None),
+        "protocol":              d.pop("protocol",              None),
+        "accepted_terms_format": d.pop("accepted_terms_format", None),
+        "settlement_rail":       d.pop("settlement_rail",       None),
+    }
+    # Only attach the block when at least one field is populated
+    if any(v is not None for v in routing.values()):
+        d["routing"] = routing
 
     return d
