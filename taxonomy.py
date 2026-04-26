@@ -46,6 +46,7 @@ TAXONOMY: dict[str, list[str]] = {
         "schedule_management",
         "analytics_reporting",
         "data_enrichment",
+        "pitch_evaluation",
     ],
 }
 
@@ -98,6 +99,10 @@ SYNONYMS: dict[str, str] = {
     "document":     "document_validation",
     "docs":         "document_validation",
     # Data
+    "pitch":            "pitch_evaluation",
+    "evaluate pitch":   "pitch_evaluation",
+    "business idea":    "pitch_evaluation",
+    "idea evaluation":  "pitch_evaluation",
     "forecast":     "demand_forecasting",
     "demand":       "demand_forecasting",
     "inventory":    "inventory_sync",
