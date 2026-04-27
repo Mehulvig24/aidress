@@ -3,6 +3,7 @@
 import sqlite3
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +15,8 @@ from models import (
     RateRequest,
     MatchRequest,
     AdminVerifyRequest,
+    CallRequest,
+    CallResponse,
     TrustObject,
     RegisterResponse,
     AgentProfile,
@@ -264,3 +267,46 @@ def admin_verify_agent(body: AdminVerifyRequest):
 
     updated = db.get_agent(body.agent_id)
     return TrustObject(**updated)
+
+
+# ── 8. POST /call ─────────────────────────────────────────────────────────────
+
+@app.post("/call", response_model=CallResponse, summary="Forward a payload to a registered agent's endpoint")
+def call_agent(body: CallRequest):
+    """
+    Proxy endpoint — looks up agent_id, extracts endpoint_url from its routing
+    block, POSTs the caller's payload to that URL via httpx, and returns the
+    downstream response.  Raises 404 if the agent is unknown, 422 if it has no
+    endpoint_url, and 502 if the downstream request fails.
+    """
+    agent = db.get_agent(body.agent_id)
+    if agent is None:
+        raise HTTPException(status_code=404, detail=f"Agent '{body.agent_id}' not found.")
+
+    routing = agent.get("routing") or {}
+    endpoint_url = routing.get("endpoint_url")
+    if not endpoint_url:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Agent '{body.agent_id}' has no endpoint_url in its routing block.",
+        )
+
+    try:
+        response = httpx.post(endpoint_url, json=body.payload, timeout=10.0)
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to reach agent at '{endpoint_url}': {exc}",
+        )
+
+    # Try to parse JSON; fall back to raw text so callers always get a usable body
+    try:
+        response_body = response.json()
+    except Exception:
+        response_body = response.text
+
+    return CallResponse(
+        agent_id=body.agent_id,
+        status_code=response.status_code,
+        body=response_body,
+    )

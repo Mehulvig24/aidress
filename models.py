@@ -1,7 +1,7 @@
 # models.py — Pydantic schemas for all request bodies and response shapes
 
 from pydantic import BaseModel, Field, constr
-from typing import Optional
+from typing import Optional, Union
 from datetime import datetime
 
 
@@ -43,6 +43,19 @@ class AdminVerifyRequest(BaseModel):
     # Internal-use request to mark an agent as verified
     agent_id:  str
     admin_key: str
+
+
+class CallRequest(BaseModel):
+    # Proxy a request through Aidress to a registered agent's endpoint_url
+    agent_id: str = Field(..., max_length=128)
+    payload:  dict                              # forwarded verbatim as the JSON body
+
+
+class CallResponse(BaseModel):
+    # Wrapper around whatever the downstream agent returned
+    agent_id:    str
+    status_code: int
+    body:        Union[dict, str]              # parsed JSON if possible, raw text otherwise
 
 
 # ── Response shapes ─────────────────────────────────────────────────────────
